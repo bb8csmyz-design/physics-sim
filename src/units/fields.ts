@@ -17,16 +17,7 @@ export const FIELDS: readonly FieldInfo[] = [
     id: 'mechanics',
     name: '力学',
     description: '物体の運動と力、エネルギー・運動量の保存',
-    planned: [
-      '等加速度直線運動',
-      '落下運動と放物運動',
-      '斜面上の運動と摩擦',
-      '運動量保存と衝突',
-      '等速円運動',
-      '単振り子',
-      '万有引力とケプラーの法則',
-      '剛体のつりあい',
-    ],
+    planned: ['等加速度直線運動', '等速円運動'],
   },
   {
     id: 'thermal',
