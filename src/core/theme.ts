@@ -102,6 +102,8 @@ export interface Palette {
   grid: string;
   axis: string;
   accent: string;
+  /** 警告・エラーの強調（解けない回路の部品など） */
+  danger: string;
   /** 物体（ブロック・小球など）の塗り */
   body: string;
   bodyStroke: string;
@@ -131,6 +133,7 @@ export function getPalette(): Palette {
     grid: cssVar(s, '--sim-grid'),
     axis: cssVar(s, '--sim-axis'),
     accent: cssVar(s, '--accent'),
+    danger: cssVar(s, '--danger'),
     body: cssVar(s, '--sim-body'),
     bodyStroke: cssVar(s, '--sim-body-stroke'),
     fixture: cssVar(s, '--sim-fixture'),

@@ -401,6 +401,37 @@ a.unit-card:hover {
   color: var(--fg-muted);
 }
 
+/* シミュレーションの下に置く道具箱（回路エディタの部品の選択など） */
+.stage-tools {
+  padding: 10px 12px 0;
+  border-top: 1px solid var(--border);
+}
+.stage-tools .choice {
+  margin-bottom: 10px;
+}
+/* 状態の知らせ（解けない回路など）。時刻表示の横に出す */
+.status-message {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.8rem;
+  color: var(--danger);
+}
+
+/* ボタンを横に並べる（折り返す） */
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+/* パネル内の補足説明 */
+.panel-note {
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--fg-muted);
+  margin: 0 0 12px;
+}
+
 /* --- スライダー --- */
 .param-panel {
   display: flex;

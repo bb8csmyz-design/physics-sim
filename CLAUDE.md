@@ -43,6 +43,7 @@ src/
       integrators.ts      数値積分（Euler, 中点法, RK4, シンプレクティック Euler, 速度ベルレ, 吉田4次）
       analysis.ts         検証用（相対誤差・収束次数・周期推定）
       special.ts          特殊関数（完全楕円積分。単振り子の厳密な周期など）
+      circuit.ts          任意の線形回路の過渡解析（修正節点解析 + L 安定な SDIRK 法）。回路エディタで使う
       constants.ts        物理定数（g = 9.8）
   ui/                     共通 UI 部品（全単元で使う）
     layout.ts             mountSimulationLayout()  単元ページの標準レイアウト
@@ -59,7 +60,8 @@ src/
                           drawFixture / drawFixturePolygon / drawPath / drawEnergyBars / drawScaleBar /
                           drawLabel / drawSymbol / drawBarChart
                           回路: drawCircuitElement（抵抗・コンデンサー・コイル・電池・交流電源）/ drawWire /
-                          drawTerminal / drawJunction / drawFlowDots（電流の流れ）、drawOutOfPlaneMark（⊙ ⊗）
+                          drawTerminal / drawJunction / drawSwitch（開閉スイッチ）/ drawFlowDots（電流の流れ）、
+                          drawOutOfPlaneMark（⊙ ⊗）
                           原子: drawMeter（電流計・電圧計）/ drawPhoton（光子の波束）
   pages/                  トップページ・単元ページの枠
   styles/                 tokens.css（色・余白）, base.css, components.css
@@ -129,6 +131,9 @@ src/
 - 保存力だけの力学系（ばね・重力・単振り子・惑星運動）→ **シンプレクティック法**
   （`velocityVerletStep`、高精度が必要なら `yoshida4Step`）。エネルギーが単調に増減しない。
 - 速度に依存する力（空気抵抗・ローレンツ力・減衰）や一般の微分方程式（回路など）→ **`rk4Step`**。
+- 利用者が自由に組む回路（素子の値しだいで硬い方程式になり、理想素子どうしの閉回路で電流が跳ぶ）→
+  `core/physics/circuit.ts`（修正節点解析 + 2 段の SDIRK 法。L 安定で、Δt より短い時定数でも発散しない）。
+  回路を枝の一覧（Netlist）で渡せば、各枝の電流・電圧が求まる。収束次数は `circuit.test.ts` で検査している。
 - `eulerStep` は比較・教育用。実際のシミュレーションには使わない。
 - 解析解で書ける運動（等加速度運動など）は、数値積分せずに解析解をそのまま使ってよい。
 - 新しい積分法を足したら `integrators.test.ts` に収束次数のテストを追加する。
