@@ -24,9 +24,12 @@ export interface ValuePanel<K extends string> {
 
 export function createValuePanel<K extends string>(specs: readonly ValueSpec<K>[]): ValuePanel<K> {
   const outputs = new Map<K, HTMLElement>();
+  const units = new Map<K, HTMLElement>();
   const rows = specs.map((s) => {
     const out = h('span', { class: 'value-num' }, '—');
     outputs.set(s.key, out);
+    const unit = s.unit ? h('span', { class: 'unit' }, s.unit) : null;
+    if (unit) units.set(s.key, unit);
     return h(
       'div',
       { class: 'value-row' },
@@ -39,7 +42,7 @@ export function createValuePanel<K extends string>(specs: readonly ValueSpec<K>[
         s.label,
         s.symbol ? [' ', symbol(s.symbol)] : null,
       ),
-      h('dd', null, out, s.unit ? h('span', { class: 'unit' }, s.unit) : null),
+      h('dd', null, out, unit),
     );
   });
   return {
@@ -48,6 +51,9 @@ export function createValuePanel<K extends string>(specs: readonly ValueSpec<K>[
       for (const s of specs) {
         const v = values[s.key];
         if (v === undefined) continue;
+        // 文字列（「全反射」など）には単位を付けない
+        const unit = units.get(s.key);
+        if (unit) unit.hidden = typeof v === 'string';
         outputs.get(s.key)!.textContent =
           typeof v === 'string'
             ? v

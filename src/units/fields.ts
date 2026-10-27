@@ -38,13 +38,7 @@ export const FIELDS: readonly FieldInfo[] = [
     id: 'waves',
     name: '波動',
     description: '波の伝わり方、音と光の性質',
-    planned: [
-      '横波と縦波・波の式',
-      '重ね合わせと定常波',
-      '光の屈折と全反射',
-      'ヤングの実験と回折格子',
-      '薄膜の干渉',
-    ],
+    planned: ['横波と縦波・波の式', '重ね合わせと定常波', '薄膜の干渉'],
   },
   {
     id: 'electromagnetism',

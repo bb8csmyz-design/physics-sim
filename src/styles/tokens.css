@@ -24,6 +24,8 @@
   --sim-body: #334155;
   --sim-body-stroke: #1e293b;
   --sim-fixture: #64748b;
+  /* 光の干渉を映すスクリーン（暗室の幕。テーマによらず暗い） */
+  --sim-screen: #0b0d12;
 
   --q-position: #2563eb;
   --q-velocity: #ea580c;
@@ -66,6 +68,7 @@
   --sim-body: #cbd5e1;
   --sim-body-stroke: #f1f5f9;
   --sim-fixture: #8b95a7;
+  --sim-screen: #05060a;
 
   --q-position: #60a5fa;
   --q-velocity: #fb923c;
