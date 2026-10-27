@@ -4,7 +4,7 @@
 import { SimulationRunner } from '@/core/sim/runner';
 import { createResponsiveCanvas } from '@/ui/canvas';
 import { mountSimulationLayout } from '@/ui/layout';
-import { createChoice, createParamPanel, createToggle } from '@/ui/params';
+import { createChoice, createParamPanel, createToggle, presetChoice } from '@/ui/params';
 import { createPlaybackControls, createTimeReadout } from '@/ui/playback';
 import { createGraphTabs, createTimeGraph } from '@/ui/timeGraph';
 import { createValuePanel } from '@/ui/valuePanel';
@@ -36,7 +36,7 @@ import { buildTheory } from './theory';
 const VISIBLE_CYCLES_PER_SECOND = 0.8;
 
 const unit: UnitModule = {
-  mount(root, { disposer }) {
+  mount(root, { disposer, preset }) {
     const sceneOpt: SceneOptions = {
       showEnvelope: true,
       showTraveling: false,
@@ -52,16 +52,20 @@ const unit: UnitModule = {
         { value: 'open', label: '開管' },
         { value: 'closed', label: '閉管' },
       ],
-      'closed',
+      presetChoice(preset?.choices, 'kind', ['string', 'open', 'closed'], 'closed'),
       () => {
         applyParams();
         runner.reset();
       },
     );
-    const params = createParamPanel(PARAMS, () => {
-      applyParams();
-      runner.reset();
-    });
+    const params = createParamPanel(
+      PARAMS,
+      () => {
+        applyParams();
+        runner.reset();
+      },
+      preset?.params,
+    );
     const p = (): ResonatorParams => params.values;
     const kind = (): ResonatorKind => kindChoice.value;
 

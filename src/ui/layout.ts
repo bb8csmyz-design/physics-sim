@@ -12,6 +12,7 @@
  *  └────────────────────────────────────────────────┘
  *  スマホでは 1 列: stage(+playback) → params → options → graphs → values → theory
  *  時間グラフが意味を持たない単元（光学など）は graphs を省略でき、PC では values が stage の横に入る。
+ *  演習ページに埋め込んだとき（root が [data-sim-embedded] の中にあるとき）は解説を省く。
  */
 import { h } from '@/core/dom';
 
@@ -63,6 +64,6 @@ export function mountSimulationLayout(root: HTMLElement, parts: SimulationLayout
       parts.graphs ? panel('グラフ', 'graphs', parts.graphs) : null,
       parts.options ? panel('表示', 'options', parts.options) : null,
     ),
-    parts.theory ?? '',
+    parts.theory && !root.closest('[data-sim-embedded]') ? parts.theory : '',
   );
 }

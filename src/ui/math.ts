@@ -10,6 +10,9 @@
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import { h } from '@/core/dom';
+import { parseRichText } from '@/core/richText';
+
+export { parseRichText };
 
 export function tex(source: string, display = false): HTMLElement {
   const el = h(display ? 'div' : 'span', { class: display ? 'math-display' : 'math-inline' });
@@ -20,28 +23,6 @@ export function tex(source: string, display = false): HTMLElement {
     strict: 'ignore',
   });
   return el;
-}
-
-/** '$...$' を区切りとしてテキストと数式を交互に並べる。'\\$' でドル記号そのもの */
-export function parseRichText(text: string): { kind: 'text' | 'math'; value: string }[] {
-  const parts: { kind: 'text' | 'math'; value: string }[] = [];
-  let buf = '';
-  let inMath = false;
-  for (let i = 0; i < text.length; i++) {
-    const c = text[i]!;
-    if (c === '\\' && text[i + 1] === '$') {
-      buf += '$';
-      i++;
-    } else if (c === '$') {
-      if (buf) parts.push({ kind: inMath ? 'math' : 'text', value: buf });
-      buf = '';
-      inMath = !inMath;
-    } else {
-      buf += c;
-    }
-  }
-  if (buf) parts.push({ kind: inMath ? 'math' : 'text', value: buf });
-  return parts;
 }
 
 export function richText(text: string): DocumentFragment {

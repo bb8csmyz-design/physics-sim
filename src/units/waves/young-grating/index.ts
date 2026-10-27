@@ -5,7 +5,7 @@
 import { SimulationRunner } from '@/core/sim/runner';
 import { createResponsiveCanvas } from '@/ui/canvas';
 import { mountSimulationLayout } from '@/ui/layout';
-import { createChoice, createParamPanel, createToggle } from '@/ui/params';
+import { createChoice, createParamPanel, createToggle, presetChoice } from '@/ui/params';
 import { createPlaybackControls, createTimeReadout } from '@/ui/playback';
 import { createValuePanel } from '@/ui/valuePanel';
 import { h } from '@/core/dom';
@@ -37,7 +37,7 @@ const TIME_SCALE = 0.6;
 const DEG = 180 / Math.PI;
 
 const unit: UnitModule = {
-  mount(root, { disposer }) {
+  mount(root, { disposer, preset }) {
     const sceneOpt: SceneOptions = { showWaves: true, showCurve: true };
 
     // --- パラメータ（モードごとに別のパネル。変更したら t = 0 からやり直す） ---
@@ -51,11 +51,19 @@ const unit: UnitModule = {
         { value: 'double', label: 'ダブルスリット' },
         { value: 'grating', label: '回折格子' },
       ],
-      'double',
+      presetChoice(preset?.choices, 'mode', ['double', 'grating'], 'double'),
       onChange,
     );
-    const youngParams = createParamPanel(YOUNG_PARAMS, onChange);
-    const gratingParams = createParamPanel(GRATING_PARAMS, onChange);
+    const youngParams = createParamPanel(
+      YOUNG_PARAMS,
+      onChange,
+      modeChoice.value === 'double' ? preset?.params : undefined,
+    );
+    const gratingParams = createParamPanel(
+      GRATING_PARAMS,
+      onChange,
+      modeChoice.value === 'grating' ? preset?.params : undefined,
+    );
     const mode = (): SlitMode => modeChoice.value;
     const config = (): SlitConfig =>
       mode() === 'double' ? youngConfig(youngParams.values) : gratingConfig(gratingParams.values);

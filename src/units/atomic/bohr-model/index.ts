@@ -42,12 +42,16 @@ const NM = 1e9; // m → nm
 const LEVELS = Array.from({ length: N_MAX }, (_, i) => i + 1);
 
 const unit: UnitModule = {
-  mount(root, { disposer }) {
+  mount(root, { disposer, preset }) {
     // --- パラメータ（変更したら t = 0 からやり直す） ---
-    const params = createParamPanel(PARAMS, () => {
-      applyParams();
-      runner.reset();
-    });
+    const params = createParamPanel(
+      PARAMS,
+      () => {
+        applyParams();
+        runner.reset();
+      },
+      preset?.params,
+    );
     const p = (): BohrParams => params.values;
 
     // --- 描画 ---

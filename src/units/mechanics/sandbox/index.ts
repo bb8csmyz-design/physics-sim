@@ -86,7 +86,16 @@ const TOOL_HINTS: Record<Tool, string> = {
 const TRAIL_INTERVAL = 0.02;
 const TRAIL_POINTS = 400;
 
-function initialSandbox(): { saved: SavedSandbox; error: string | null } {
+function initialSandbox(state: string | undefined): { saved: SavedSandbox; error: string | null } {
+  // 演習問題の答え合わせから開いたときは、問題の配置（serialize した JSON）を読み込む
+  if (state !== undefined) {
+    try {
+      return { saved: parseSandbox(state), error: null };
+    } catch (err) {
+      const message = err instanceof SandboxFormatError ? err.message : '読み込めませんでした';
+      return { saved: preset(DEFAULT_PRESET), error: message };
+    }
+  }
   const code = parseHashQuery(location.hash).get(URL_KEY);
   if (code) {
     try {
@@ -100,8 +109,8 @@ function initialSandbox(): { saved: SavedSandbox; error: string | null } {
 }
 
 const unit: UnitModule = {
-  mount(root, { disposer }) {
-    const first = initialSandbox();
+  mount(root, { disposer, preset: unitPreset }) {
+    const first = initialSandbox(unitPreset?.state);
     let design: SandboxDesign = first.saved.design;
     let selection: Selection | null = null;
     let tool: Tool = 'select';
@@ -120,11 +129,15 @@ const unit: UnitModule = {
     };
 
     // --- 全体のパラメータ（変えたら t = 0 からやり直す） ---
-    const params = createParamPanel(PARAMS, () => {
-      if (suspend) return;
-      dirty = true;
-      runner.reset();
-    });
+    const params = createParamPanel(
+      PARAMS,
+      () => {
+        if (suspend) return;
+        dirty = true;
+        runner.reset();
+      },
+      unitPreset?.params,
+    );
     const p = (): SandboxParams => params.values;
     for (const spec of PARAMS) params.set(spec.key, first.saved.params[spec.key]);
 

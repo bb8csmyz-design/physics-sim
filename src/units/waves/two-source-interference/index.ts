@@ -5,7 +5,7 @@ import { SimulationRunner } from '@/core/sim/runner';
 import { createResponsiveCanvas } from '@/ui/canvas';
 import { createFieldRenderer } from '@/ui/fieldImage';
 import { mountSimulationLayout } from '@/ui/layout';
-import { createChoice, createParamPanel, createToggle } from '@/ui/params';
+import { createChoice, createParamPanel, createToggle, presetChoice } from '@/ui/params';
 import { createPlaybackControls, createTimeReadout } from '@/ui/playback';
 import { createGraphTabs, createTimeGraph } from '@/ui/timeGraph';
 import { createValuePanel } from '@/ui/valuePanel';
@@ -41,7 +41,7 @@ const KIND_LABEL = {
 } as const;
 
 const unit: UnitModule = {
-  mount(root, { disposer }) {
+  mount(root, { disposer, preset }) {
     const sceneOpt: SceneOptions = {
       showConstructive: true,
       showDestructive: false,
@@ -56,16 +56,20 @@ const unit: UnitModule = {
         { value: 'same', label: '同位相' },
         { value: 'opposite', label: '逆位相' },
       ],
-      'same',
+      presetChoice(preset?.choices, 'phase', ['same', 'opposite'], 'same'),
       () => {
         applyParams();
         runner.reset();
       },
     );
-    const params = createParamPanel(PARAMS, () => {
-      applyParams();
-      runner.reset();
-    });
+    const params = createParamPanel(
+      PARAMS,
+      () => {
+        applyParams();
+        runner.reset();
+      },
+      preset?.params,
+    );
     const p = (): InterferenceParams => params.values;
     const phase = (): SourcePhase => phaseChoice.value;
 

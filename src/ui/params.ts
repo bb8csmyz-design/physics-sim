@@ -87,21 +87,27 @@ export interface ParamPanel<K extends string> {
 /**
  * パラメータ群のパネル。値が変わるたびに onChange(values, changedKey) を呼ぶ。
  * 「初期値に戻す」ボタン付き。
+ * initial（単元を開くときの初期条件 ctx.preset?.params）があれば、その値から始める
+ * （範囲外・刻み外の値はスライダーに合わせて丸める。「初期値に戻す」では既定値に戻る）。
  */
 export function createParamPanel<K extends string>(
   specs: readonly ParamSpec<K>[],
   onChange: (values: Readonly<ParamValues<K>>, key: K | null) => void,
+  initial?: Readonly<Record<string, number>>,
 ): ParamPanel<K> {
   const values = defaultParams(specs);
   const sliders = new Map<K, Slider>();
   for (const spec of specs) {
-    sliders.set(
-      spec.key,
-      createSlider(spec, (v) => {
-        values[spec.key] = v;
-        onChange(values, spec.key);
-      }),
-    );
+    const v0 = initial?.[spec.key];
+    const slider = createSlider(spec, (v) => {
+      values[spec.key] = v;
+      onChange(values, spec.key);
+    });
+    if (v0 !== undefined && Number.isFinite(v0)) {
+      slider.value = v0;
+      values[spec.key] = slider.value; // input[type=range] が範囲と刻みに丸めた値
+    }
+    sliders.set(spec.key, slider);
   }
   const resetToDefaults = () => {
     for (const spec of specs) {
@@ -202,4 +208,18 @@ export function createChoice<V extends string>(
       select(v);
     },
   };
+}
+
+/**
+ * 択一の初期値を単元の初期条件（ctx.preset?.choices）から選ぶ。指定がないか選択肢にない値なら fallback
+ */
+export function presetChoice<V extends string>(
+  choices: Readonly<Record<string, string>> | undefined,
+  key: string,
+  options: readonly ChoiceOption<V>[] | readonly V[],
+  fallback: V,
+): V {
+  const v = choices?.[key];
+  const values = options.map((o) => (typeof o === 'string' ? o : o.value));
+  return values.find((x) => x === v) ?? fallback;
 }

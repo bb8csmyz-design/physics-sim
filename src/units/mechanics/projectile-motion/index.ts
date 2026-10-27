@@ -28,7 +28,7 @@ import { drawScene, type SceneOptions } from './scene';
 import { buildTheory } from './theory';
 
 const unit: UnitModule = {
-  mount(root, { disposer }) {
+  mount(root, { disposer, preset }) {
     const sceneOpt: SceneOptions = {
       showVelocity: true,
       showComponents: false,
@@ -37,10 +37,14 @@ const unit: UnitModule = {
     };
 
     // --- パラメータ（変更したら t = 0 からやり直す） ---
-    const params = createParamPanel(PARAMS, () => {
-      applyParams();
-      runner.reset();
-    });
+    const params = createParamPanel(
+      PARAMS,
+      () => {
+        applyParams();
+        runner.reset();
+      },
+      preset?.params,
+    );
     const p = (): ProjectileParams => params.values;
 
     // --- 描画 ---

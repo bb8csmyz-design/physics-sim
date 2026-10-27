@@ -33,15 +33,19 @@ import { buildTheory } from './theory';
 const MILLI = 1e3;
 
 const unit: UnitModule = {
-  mount(root, { disposer }) {
+  mount(root, { disposer, preset }) {
     const sceneOpt: SceneOptions = { showCurrent: true, showEnergyBars: true };
     let sw: SwitchPosition = 'a';
 
     // --- パラメータ（変更したら t = 0 からやり直す） ---
-    const params = createParamPanel(PARAMS, () => {
-      applyParams();
-      runner.reset();
-    });
+    const params = createParamPanel(
+      PARAMS,
+      () => {
+        applyParams();
+        runner.reset();
+      },
+      preset?.params,
+    );
     const p = (): RcParams => params.values;
 
     // スイッチは途中で切り替えても t = 0 に戻さない（充電の途中から放電させられる）

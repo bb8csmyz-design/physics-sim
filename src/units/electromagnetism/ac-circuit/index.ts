@@ -35,15 +35,19 @@ import { drawScene, type SceneOptions } from './scene';
 import { buildTheory } from './theory';
 
 const unit: UnitModule = {
-  mount(root, { disposer }) {
+  mount(root, { disposer, preset }) {
     const sceneOpt: SceneOptions = { showCurrent: true, showPhasor: true };
     let mode: StartMode = 'steady';
 
     // --- パラメータ（変更したら t = 0 からやり直す） ---
-    const params = createParamPanel(PARAMS, () => {
-      applyParams();
-      runner.reset();
-    });
+    const params = createParamPanel(
+      PARAMS,
+      () => {
+        applyParams();
+        runner.reset();
+      },
+      preset?.params,
+    );
     const p = (): AcParams => params.values;
     const startToggle = createToggle('電源を入れた瞬間から始める（過渡現象）', false, (on) => {
       mode = on ? 'rest' : 'steady';

@@ -6,7 +6,13 @@ import { SimulationRunner } from '@/core/sim/runner';
 import { niceBounds } from '@/core/ticks';
 import { createResponsiveCanvas } from '@/ui/canvas';
 import { mountSimulationLayout } from '@/ui/layout';
-import { createChoice, createParamPanel, createToggle, type ParamPanel } from '@/ui/params';
+import {
+  createChoice,
+  createParamPanel,
+  createToggle,
+  presetChoice,
+  type ParamPanel,
+} from '@/ui/params';
 import { createPlaybackControls } from '@/ui/playback';
 import { createGraphTabs, createTimeGraph } from '@/ui/timeGraph';
 import { createValuePanel, createValueTable, type ValueTable } from '@/ui/valuePanel';
@@ -40,10 +46,12 @@ type EnergyKey = 'Q' | 'W' | 'dU';
 type StateKey = 'p' | 'V' | 'T';
 
 const unit: UnitModule = {
-  mount(root, { disposer }) {
+  mount(root, { disposer, preset }) {
     const sceneOpt: SceneOptions = { showIsotherms: true, showArea: true, showArrows: true };
-    let cycleId: CycleId = 'rectangle';
-    let gas: GasKind = 'monatomic';
+    let cycleId: CycleId = presetChoice(preset?.choices, 'cycle', CYCLE_OPTIONS, 'rectangle');
+    let gas: GasKind = presetChoice(preset?.choices, 'gas', GAS_OPTIONS, 'monatomic');
+    // 初期条件のスライダーの値は、最初に開いたサイクルにだけ使う
+    let initialParams = preset?.params;
 
     // --- パラメータ（サイクルの種類ごとにスライダーが変わる。変更したら状態 A からやり直す） ---
     const sliderHost = h('div', null);
@@ -51,10 +59,15 @@ const unit: UnitModule = {
     let cycle: Cycle;
     let sum: CycleSummary;
     const makeSliders = () => {
-      params = createParamPanel(CYCLES[cycleId].params, () => {
-        applyParams();
-        runner.reset();
-      });
+      params = createParamPanel(
+        CYCLES[cycleId].params,
+        () => {
+          applyParams();
+          runner.reset();
+        },
+        initialParams,
+      );
+      initialParams = undefined;
       sliderHost.replaceChildren(params.element);
     };
     const cycleChoice = createChoice('サイクルの種類', CYCLE_OPTIONS, cycleId, (v) => {

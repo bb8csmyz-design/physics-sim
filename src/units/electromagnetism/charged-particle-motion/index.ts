@@ -34,7 +34,7 @@ const MILLI = 1e3;
 const TRAIL_MAX = 4000;
 
 const unit: UnitModule = {
-  mount(root, { disposer }) {
+  mount(root, { disposer, preset }) {
     const sceneOpt: SceneOptions = {
       showVelocity: true,
       showForce: true,
@@ -45,10 +45,14 @@ const unit: UnitModule = {
     let camera: Camera = { x: 0, y: 0 };
 
     // --- パラメータ（変更したら t = 0 からやり直す） ---
-    const params = createParamPanel(PARAMS, () => {
-      applyParams();
-      runner.reset();
-    });
+    const params = createParamPanel(
+      PARAMS,
+      () => {
+        applyParams();
+        runner.reset();
+      },
+      preset?.params,
+    );
     const p = (): ParticleParams => params.values;
 
     // --- 描画 ---

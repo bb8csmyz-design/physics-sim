@@ -1,4 +1,5 @@
 import { h } from '@/core/dom';
+import { accuracy, loadRecords, totals, weakUnits } from '@/core/practiceRecords';
 import { FIELDS } from '@/units/fields';
 import { unitsOf } from '@/units/registry';
 import type { UnitEntry } from '@/units/types';
@@ -37,6 +38,7 @@ export function renderHome(outlet: HTMLElement): void {
         '高校物理〜大学入試レベルの現象を、パラメータを変えながらシミュレーションで観察できます。グラフ・数式・解説とあわせて、公式の「なぜ」をつかみましょう。',
       ),
       nav,
+      practiceCard(),
     ),
     ...FIELDS.map((f) => {
       const units = unitsOf(f.id);
@@ -82,6 +84,28 @@ function unitCard(u: UnitEntry): HTMLElement {
       h('span', { class: 'unit-title' }, u.meta.title),
       h('span', { class: 'unit-summary' }, u.meta.summary),
       h('span', { class: 'badge' }, u.meta.level),
+    ),
+  );
+}
+
+/** 演習モードへの入口（成績があれば正答率と苦手単元の数も出す） */
+function practiceCard(): HTMLElement {
+  const records = loadRecords();
+  const tot = totals(records);
+  const acc = accuracy(tot);
+  const weak = weakUnits(records).length;
+  return h(
+    'a',
+    { class: 'practice-card', href: '#/practice' },
+    h('span', { class: 'practice-card-title' }, '演習モード'),
+    h(
+      'span',
+      { class: 'practice-card-text' },
+      acc === null
+        ? '各単元の入試風の問題に挑戦。採点・解説のあと、同じ条件のシミュレーションで答えを確かめられます。'
+        : `これまでに ${tot.attempts} 問・正答率 ${Math.round(acc * 100)}%` +
+            (weak ? `・苦手な単元 ${weak}` : '') +
+            '。成績の一覧と苦手単元の復習はこちら。',
     ),
   );
 }

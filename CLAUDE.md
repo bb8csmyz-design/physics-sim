@@ -28,7 +28,9 @@ npm run format       # Prettier で整形
 ```
 src/
   main.ts                 起動・ルーティング・テーマ切替・Service Worker 登録
-  router.ts               ハッシュの解釈（? 以降は単元の状態の共有用。parseHashQuery で読む。例: サンドボックスの配置）
+  router.ts               ハッシュの解釈（? 以降は単元の状態の共有用。parseHashQuery で読む。例: サンドボックスの配置）。
+                          #/practice（演習の成績一覧）・#/practice/<分野>/<単元>?q=&seed=（演習問題）、
+                          単元の初期条件 ?p.<key>=値&c.<key>=択一&st=状態（presetToQuery / presetFromQuery）
   core/                   UI に依存しない基盤
     dom.ts                h() / symbol() / Disposer
     format.ts             数値表示（負号 U+2212、有効数字）
@@ -37,6 +39,10 @@ src/
     theme.ts              ライト/ダーク、Canvas 用パレット、物理量の色
     ticks.ts              グラフ目盛り
     random.ts             シード付き乱数（確率的なモデル用。乱数の状態は物理の状態に含めて受け渡す）
+    exercise.ts           演習問題の型（ExerciseTemplate / Exercise）・出題の乱数（pickStep など）・
+                          問題文の数値（num / sig）・解答の読み取りと採点（parseAnswer / grade）
+    practiceRecords.ts    演習の成績（localStorage。集計・苦手単元の判定は純粋関数）
+    richText.ts           $...$ / $$...$$ の区切り（KaTeX に依存しない部分）
     spectrum.ts           光の波長 → 表示色（可視光の範囲・紫外線/赤外線の判定）
     sim/runner.ts         SimulationRunner（固定刻みの時間発展 + rAF 描画。timeScale でスロー再生、isFinished で衝突などの終了）
     physics/
@@ -53,6 +59,7 @@ src/
     xyGraph.ts            createXYGraph()  横軸が時間でないグラフ（I-V 特性、E-n など）
     valuePanel.ts         createValuePanel() / createValueTable()（過程ごとの Q, W, ΔU などの表）
     math.ts               tex() / richText()
+    exercise.ts           createExerciseView()  演習問題 1 問の表示（問題文・解答欄・採点結果・解説）
     theory.ts             theory() / section() / p() / eq() / ul() / note() / question()
     canvas.ts             createResponsiveCanvas() / fitViewport()
     plot.ts               drawPlotAxes()  Canvas 内に描く x-y グラフ（p-V 図・分布など）の軸と目盛り
@@ -63,13 +70,14 @@ src/
                           drawTerminal / drawJunction / drawSwitch（開閉スイッチ）/ drawFlowDots（電流の流れ）、
                           drawOutOfPlaneMark（⊙ ⊗）
                           原子: drawMeter（電流計・電圧計）/ drawPhoton（光子の波束）
-  pages/                  トップページ・単元ページの枠
+  pages/                  トップページ・単元ページの枠、practice.ts（演習モード。main.ts から遅延読み込み）
   styles/                 tokens.css（色・余白）, base.css, components.css
   units/
     types.ts              UnitMeta / UnitModule
     fields.ts             分野一覧と「準備中」の単元リスト
     registry.ts           単元の自動登録（import.meta.glob）
     structure.test.ts     単元フォルダ規約の自動検査
+    exerciseChecks.ts     演習問題の共通の検査 checkExercises()（各単元の exercises.test.ts から呼ぶ）
     <分野>/<単元>/        1 単元 = 1 フォルダ
 ```
 
@@ -90,6 +98,8 @@ src/
    | `index.ts`          | `export default` の `UnitModule`。共通部品を組み合わせて UI を作る                                                                                    |
    | `scene.ts`（推奨）  | Canvas への描画。計算は model.ts を呼ぶだけ                                                                                                           |
    | `theory.ts`（推奨） | 解説文。`ui/theory.ts` の部品で書く                                                                                                                   |
+   | `exercises.ts`      | 演習問題 `export const EXERCISES: readonly ExerciseTemplate[]`（3 パターン以上。下記「演習問題」）                                                    |
+   | `exercises.test.ts` | `checkExercises(EXERCISES, PARAMS)` と、正解がシミュレーションと一致するテスト                                                                        |
 3. **登録作業は不要**。`registry.ts` が自動で一覧とルーティングに載せる。
 4. `fields.ts` の該当分野の `planned` から、実装した単元名を**削除**する（残っているとテストが落ちる）。
    `meta.title` は planned に書かれていた名前とそろえる。
@@ -98,7 +108,9 @@ src/
 
 ### index.ts の定型（見本単元と同じ流れにする）
 
-1. `createParamPanel(PARAMS, ...)` — 初期条件・系の定数が変わったら `runner.reset()` して t = 0 からやり直す
+0. `mount(root, { disposer, preset })` — `preset` は演習問題の答え合わせ・URL から渡される初期条件
+1. `createParamPanel(PARAMS, ..., preset?.params)` — 初期条件・系の定数が変わったら `runner.reset()` して t = 0 からやり直す。
+   択一の切り替え（`createChoice`）の初期値は `presetChoice(preset?.choices, キー, 選択肢, 既定値)` で決める
 2. `createResponsiveCanvas({ draw })` — draw は `runner.state` を読んで scene.ts の関数を呼ぶ
 3. `createTimeGraph` × n → `createGraphTabs`
 4. `createValuePanel`（現在値）＋必要なら「この条件での値」（周期など定数）
@@ -125,6 +137,27 @@ src/
    テストを通すために根拠なく許容誤差を緩めない。落ちたらまずモデルか刻み幅を疑う。
 7. **刻み幅 DT の妥当性もテストする**（例: パラメータ範囲全体で ωΔt ≤ 0.04）。
 8. テストは 1 ファイル数秒以内に収める（CI 時間とタイムアウト対策）。
+
+## 演習問題（`exercises.ts`）
+
+各単元に大学入試風の問題を **3 パターン以上** 置く（`structure.test.ts` が検査する）。見本は
+`src/units/mechanics/spring-oscillation/exercises.ts`。
+
+- パターン（`ExerciseTemplate`）は `id`（英小文字と `-`。成績の記録と URL に使うので変えない）・`title`・
+  `generate(rng)` を持つ。`generate` は `core/exercise.ts` の乱数ヘルパー（`pickStep` / `pickOne` / `pickInt`）だけで
+  数値を選ぶ（`Math.random` は使わない。同じシードから同じ問題を作るため）。
+- **正解は model.ts の関数で求める**（問題ごとに公式を書き直さない）。数値問題は `numeric(値, 単位, { sig, relTol, integer })`
+  （既定は有効数字 2 桁・相対誤差 2%）、選択問題は `choice(rng, 正解, ...誤答)`（並びは乱数で入れかわる）。
+- 問題文は `$...$` で数式を書き、空行で段落を分ける。与える数値は `num()`、解説の途中の計算結果は `sig()`（有効数字 3 桁）で書く。
+  入試の慣例の定数（g = 9.8、k = 9.0×10⁹、E[eV] = 1240/λ[nm] など）は問題文に書く。
+- 解説（`solution`）は段落の配列。`$$...$$` は別行の数式。原理 → 式 → 数値 → 補足（入試のポイント）の順に書く。
+- **答え合わせ用のシミュレーションの条件**（`sim`）: `params` は単元の PARAMS の全キーを、スライダーの範囲と刻みに
+  乗る値で指定する（問題の数値は刻みに乗る値から選ぶ）。択一は `choices`、単元固有の状態は `state`（サンドボックスの配置・
+  回路エディタの回路）。`hint` には、シミュレーションのどこを見れば答えを確かめられるかを書く。
+- 問題文に出てくるが `sim.params` にない値（「x = 0.1 m の位置での速さ」の x など）は `given` に入れ、テストで使う。
+- `exercises.test.ts` では、先頭で `checkExercises(EXERCISES, PARAMS)`（正解の表示と採点・刻み・KaTeX・シードによる変化を検査）を呼び、
+  さらに **各パターンの正解が、`sim` の条件で model.ts の `step()` を動かした結果（または独立な計算）と一致すること** を確かめる。
+  許容誤差の根拠は物理テストと同じくコメントに書く。
 
 ### 数値積分法の選び方（`core/physics/integrators.ts`）
 
@@ -170,6 +203,8 @@ src/
   → 数値計算について」の順を基本にする。考えてみようの答えはシミュレーションで確かめられる内容にする。
 - **スマホ対応**: 幅 390px で横スクロールが出ないこと。タップ領域は 40px 以上。Canvas は `mobileAspect` で縦を確保。
 - **アクセシビリティ**: Canvas には `ariaLabel` で内容の説明を付ける。キーボード操作（Space/R/→）は再生コントロールが提供する。
+- **演習モード**: 演習ページは単元を `[data-sim-embedded]` の中に埋め込んで答え合わせに使う（`mountSimulationLayout` は
+  そのとき解説を省く）。成績は `core/practiceRecords.ts` 経由でのみ読み書きする（localStorage は失敗しても動くように）。
 
 ## PWA・デプロイ
 

@@ -22,6 +22,7 @@ import {
   PRESETS,
   acPeak,
   buildSystem,
+  decodeCircuit,
   flipPart,
   initialState,
   instantValues,
@@ -104,8 +105,10 @@ function nameText(name: string): string {
 }
 
 const unit: UnitModule = {
-  mount(root, { disposer }) {
-    const first = preset('rc');
+  mount(root, { disposer, preset: unitPreset }) {
+    // 演習問題の答え合わせから開いたときは、問題の回路から始める
+    const first =
+      (unitPreset?.state !== undefined && decodeCircuit(unitPreset.state)) || preset('rc');
     let circuit: Circuit = first.circuit;
     let names = partNames(circuit);
     let closed: boolean[] = circuit.parts.map(() => false);
