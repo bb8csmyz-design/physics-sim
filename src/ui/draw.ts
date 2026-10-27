@@ -211,3 +211,98 @@ export function drawLabel(
   ctx.fillText(text, x, y);
   ctx.restore();
 }
+
+/**
+ * 電池（直流電源）の記号。水平な導線上の (cx, cy) に置く。
+ * 長い線が正極、短く太い線が負極。positive で正極の側（'left' | 'right'）を指定する。
+ */
+export function drawBattery(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  positive: 'left' | 'right',
+  color: string,
+  size = 14,
+): void {
+  const gap = size * 0.45;
+  const plusX = positive === 'left' ? cx - gap / 2 : cx + gap / 2;
+  const minusX = positive === 'left' ? cx + gap / 2 : cx - gap / 2;
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineCap = 'butt';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(plusX, cy - size);
+  ctx.lineTo(plusX, cy + size);
+  ctx.stroke();
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.moveTo(minusX, cy - size * 0.5);
+  ctx.lineTo(minusX, cy + size * 0.5);
+  ctx.stroke();
+  ctx.restore();
+  drawLabel(ctx, '+', plusX + (positive === 'left' ? -8 : 8), cy - size, color, {
+    font: CANVAS_FONT_SMALL,
+  });
+}
+
+/** 電流計・電圧計の記号（円の中に 'A' / 'V'）。中心 (cx, cy)、半径 r */
+export function drawMeter(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  r: number,
+  label: string,
+  color: string,
+  fill: string,
+): void {
+  drawBall(ctx, cx, cy, r, fill, color);
+  drawLabel(ctx, label, cx, cy + 0.5, color, { font: CANVAS_FONT });
+}
+
+/**
+ * 光子（光の粒）を表す波束。(x, y) を中心に、向き angle [rad] へ進む長さ len の波形を描く。
+ * wavelength は画面上の波の間隔 [px]（実際の波長に比例させると、色と波長の関係が見える）。
+ */
+export function drawPhoton(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  angle: number,
+  len: number,
+  wavelength: number,
+  color: string,
+  width = 2,
+): void {
+  const ux = Math.cos(angle);
+  const uy = Math.sin(angle);
+  const amp = Math.min(5, wavelength * 0.45);
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = width;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  const n = Math.max(8, Math.ceil(len / 1.5));
+  for (let i = 0; i <= n; i++) {
+    const s = -len / 2 + (len * i) / n;
+    // 両端で振幅が 0 になる包絡線
+    const env = Math.sin((Math.PI * i) / n);
+    const w = amp * env * Math.sin((2 * Math.PI * s) / wavelength);
+    const px = x + ux * s - uy * w;
+    const py = y + uy * s + ux * w;
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+  // 進む向きの小さな矢じり
+  const hx = x + (ux * len) / 2;
+  const hy = y + (uy * len) / 2;
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(hx + ux * 6, hy + uy * 6);
+  ctx.lineTo(hx - uy * 4, hy + ux * 4);
+  ctx.lineTo(hx + uy * 4, hy - ux * 4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}

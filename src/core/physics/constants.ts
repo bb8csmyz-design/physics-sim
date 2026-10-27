@@ -12,6 +12,8 @@ export const G_ACCEL = 9.8;
 export const SPEED_OF_LIGHT = 299_792_458;
 /** 電気素量 [C]（定義値） */
 export const ELEMENTARY_CHARGE = 1.602_176_634e-19;
+/** 1 電子ボルト [J]（電気素量 × 1 V） */
+export const ELECTRON_VOLT = 1.602_176_634e-19;
 /** プランク定数 [J·s]（定義値） */
 export const PLANCK = 6.626_070_15e-34;
 /** ボルツマン定数 [J/K]（定義値） */

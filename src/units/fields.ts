@@ -68,13 +68,7 @@ export const FIELDS: readonly FieldInfo[] = [
     id: 'atomic',
     name: '原子',
     description: '光と電子の粒子性・波動性、原子と原子核',
-    planned: [
-      '光電効果',
-      'コンプトン効果',
-      'ボーアの水素原子模型',
-      '物質波と電子線回折',
-      '放射性崩壊と半減期',
-    ],
+    planned: ['コンプトン効果', '物質波と電子線回折'],
   },
 ];
 

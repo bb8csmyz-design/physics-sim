@@ -24,6 +24,9 @@
   --sim-body: #334155;
   --sim-body-stroke: #1e293b;
   --sim-fixture: #64748b;
+  /* 分光器の視野（スペクトル線を描く暗い帯）。光の色が見えるよう両テーマで暗くする */
+  --sim-spectrum-bg: #0b0d12;
+  --sim-spectrum-fg: #cbd5e1;
 
   --q-position: #2563eb;
   --q-velocity: #ea580c;
@@ -37,6 +40,9 @@
   --q-magnetic: #0d9488;
   --q-current: #ca8a04;
   --q-heat: #e11d48;
+  --q-electron: #4f46e5;
+  --q-nucleus: #65a30d;
+  --q-daughter: #c026d3;
 
   --field-mechanics: #2563eb;
   --field-thermal: #e11d48;
@@ -66,6 +72,8 @@
   --sim-body: #cbd5e1;
   --sim-body-stroke: #f1f5f9;
   --sim-fixture: #8b95a7;
+  --sim-spectrum-bg: #05060a;
+  --sim-spectrum-fg: #cbd5e1;
 
   --q-position: #60a5fa;
   --q-velocity: #fb923c;
@@ -79,6 +87,9 @@
   --q-magnetic: #2dd4bf;
   --q-current: #facc15;
   --q-heat: #fb7185;
+  --q-electron: #818cf8;
+  --q-nucleus: #a3e635;
+  --q-daughter: #e879f9;
 
   --field-mechanics: #60a5fa;
   --field-thermal: #fb7185;

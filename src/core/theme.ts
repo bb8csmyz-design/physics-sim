@@ -82,6 +82,9 @@ export const QUANTITY_COLORS = [
   'magnetic',
   'current',
   'heat',
+  'electron',
+  'nucleus',
+  'daughter',
 ] as const;
 export type Quantity = (typeof QUANTITY_COLORS)[number];
 
@@ -98,6 +101,9 @@ export interface Palette {
   bodyStroke: string;
   /** 壁・床などの固定物 */
   fixture: string;
+  /** スペクトル線を描く暗い帯の背景と文字 */
+  spectrumBg: string;
+  spectrumFg: string;
   quantity: Record<Quantity, string>;
 }
 
@@ -121,6 +127,8 @@ export function getPalette(): Palette {
     body: cssVar(s, '--sim-body'),
     bodyStroke: cssVar(s, '--sim-body-stroke'),
     fixture: cssVar(s, '--sim-fixture'),
+    spectrumBg: cssVar(s, '--sim-spectrum-bg'),
+    spectrumFg: cssVar(s, '--sim-spectrum-fg'),
     quantity,
   };
   return cachedPalette;

@@ -104,14 +104,27 @@ export function createPlaybackControls<S>(
   );
 }
 
-/** 「t = 1.23 s」の時刻表示。render のたびに update(t) を呼ぶ */
-export function createTimeReadout(digits = 2): { element: HTMLElement; update(t: number): void } {
+/**
+ * 「t = 1.23 s」の時刻表示。render のたびに update(t) を呼ぶ（t は秒）。
+ * 現象の時間スケールが短いときは unit / scale で表示単位を変える（例: { unit: 'ns', scale: 1e9 }）。
+ */
+export function createTimeReadout(
+  digits = 2,
+  display: { unit: string; scale: number } = { unit: 's', scale: 1 },
+): { element: HTMLElement; update(t: number): void } {
   const value = h('span', { class: 'num' });
-  const element = h('div', { class: 'time-readout' }, h('var', null, 't'), ' = ', value, ' s');
+  const element = h(
+    'div',
+    { class: 'time-readout' },
+    h('var', null, 't'),
+    ' = ',
+    value,
+    ` ${display.unit}`,
+  );
   return {
     element,
     update(t) {
-      value.textContent = formatFixed(t, digits);
+      value.textContent = formatFixed(t * display.scale, digits);
     },
   };
 }

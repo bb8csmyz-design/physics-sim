@@ -35,6 +35,8 @@ src/
     params.ts             ParamSpec 型・paramCorners()（テスト用の全隅の組）
     theme.ts              ライト/ダーク、Canvas 用パレット、物理量の色
     ticks.ts              グラフ目盛り
+    random.ts             シード付き乱数（確率的なモデル用。乱数の状態は物理の状態に含めて受け渡す）
+    spectrum.ts           光の波長 → 表示色（可視光の範囲・紫外線/赤外線の判定）
     sim/runner.ts         SimulationRunner（固定刻みの時間発展 + rAF 描画）
     physics/
       integrators.ts      数値積分（Euler, 中点法, RK4, シンプレクティック Euler, 速度ベルレ, 吉田4次）
@@ -45,11 +47,13 @@ src/
     params.ts             createParamPanel() / createSlider() / createToggle()
     playback.ts           createPlaybackControls() / createTimeReadout()
     timeGraph.ts          createTimeGraph() / createGraphTabs()
+    xyGraph.ts            createXYGraph()  横軸が時間でないグラフ（I-V 特性、E-n など）
     valuePanel.ts         createValuePanel()
     math.ts               tex() / richText()
     theory.ts             theory() / section() / p() / eq() / ul() / note() / question()
     canvas.ts             createResponsiveCanvas() / fitViewport()
-    draw.ts               drawArrow / drawSpring / drawBlock / drawBall / drawFixture / drawLabel ...
+    draw.ts               drawArrow / drawSpring / drawBlock / drawBall / drawFixture / drawLabel /
+                          drawBattery / drawMeter / drawPhoton ...
   pages/                  トップページ・単元ページの枠
   styles/                 tokens.css（色・余白）, base.css, components.css
   units/
@@ -138,7 +142,8 @@ src/
 - **色**: 色は `styles/tokens.css` の CSS 変数と `getPalette()` 経由でのみ指定する（直書き禁止）。ダークモードで
   必ず確認する。**物理量の色は全単元共通**（`--q-*` / `QUANTITY_COLORS`）:
   位置 = 青, 速度 = 橙, 加速度 = 緑, 力 = 赤, 運動エネルギー = 黄, 位置エネルギー = 紫, 力学的エネルギー = 灰,
-  電場 = ピンク, 磁場 = 青緑, 電流 = 黄土, 熱 = ローズ。グラフ・矢印・値パネルの色見本で同じ色を使う。
+  電場 = ピンク, 磁場 = 青緑, 電流 = 黄土, 熱 = ローズ, 電子 = 藍, 原子核（崩壊前）= 黄緑, 崩壊後の原子核 = 赤紫。
+  光（光子・スペクトル線）の色は波長で決まるので `core/spectrum.ts` の `wavelengthCss()` を使う（可視光以外は muted）。グラフ・矢印・値パネルの色見本で同じ色を使う。
   新しい物理量の色が必要なら `tokens.css`（ライト・ダーク両方）と `theme.ts` の両方に追加する。
 - **矢印（ベクトル）**: 速度・力などは `drawArrow` で物理量の色を使い、記号のラベル（`v`, `F`）を付ける。
   長さはパラメータ範囲で画面からはみ出さないよう規格化する。

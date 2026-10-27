@@ -26,6 +26,8 @@ export interface SeriesSpec {
 export interface TimeGraphOptions {
   /** 縦軸ラベル（例: 'x [m]'） */
   yLabel: string;
+  /** 横軸ラベル（既定 't [s]'。push する時刻の単位を変えたときに合わせる） */
+  xLabel?: string;
   series: readonly SeriesSpec[];
   /** 表示する時間幅 [s]（既定 10） */
   window?: number;
@@ -144,7 +146,7 @@ export function createTimeGraph(opts: TimeGraphOptions, disposer: Disposer): Tim
     ctx.fillText(opts.yLabel, 6, y0 - 10);
     ctx.textAlign = 'right';
     ctx.textBaseline = 'bottom';
-    ctx.fillText('t [s]', x1, size.height - 2);
+    ctx.fillText(opts.xLabel ?? 't [s]', x1, size.height - 2);
 
     // データ
     ctx.save();
@@ -245,10 +247,18 @@ export function createTimeGraph(opts: TimeGraphOptions, disposer: Disposer): Tim
   };
 }
 
+/** タブに入れられるグラフ（createTimeGraph / createXYGraph） */
+export interface GraphView {
+  readonly element: HTMLElement;
+  redraw(): void;
+  /** 記録したデータを消す（記録しないグラフは省略） */
+  clear?(): void;
+}
+
 export interface GraphTab {
   /** タブの表示名（例: 'x-t'） */
   label: string;
-  graph: TimeGraph;
+  graph: GraphView;
 }
 
 /**
@@ -292,6 +302,6 @@ export function createGraphTabs(tabs: readonly GraphTab[]): {
       panels,
     ),
     redraw: () => tabs[active]!.graph.redraw(),
-    clear: () => tabs.forEach((t) => t.graph.clear()),
+    clear: () => tabs.forEach((t) => t.graph.clear?.()),
   };
 }
