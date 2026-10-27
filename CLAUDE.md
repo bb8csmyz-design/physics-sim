@@ -28,7 +28,7 @@ npm run format       # Prettier で整形
 ```
 src/
   main.ts                 起動・ルーティング・テーマ切替・Service Worker 登録
-  router.ts               ハッシュの解釈
+  router.ts               ハッシュの解釈（? 以降は単元の状態の共有用。parseHashQuery で読む。例: サンドボックスの配置）
   core/                   UI に依存しない基盤
     dom.ts                h() / symbol() / Disposer
     format.ts             数値表示（負号 U+2212、有効数字）
