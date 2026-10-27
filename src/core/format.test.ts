@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { digitsForStep, formatFixed, formatSig } from './format';
+import { digitsForStep, formatFixed, formatSig, powerOfTen } from './format';
 
 describe('format', () => {
   it('formatFixed: 負号は U+2212、-0 は 0', () => {
@@ -22,5 +22,12 @@ describe('format', () => {
     expect(digitsForStep(0.1)).toBe(1);
     expect(digitsForStep(0.01)).toBe(2);
     expect(digitsForStep(0.05)).toBe(2);
+  });
+});
+
+describe('powerOfTen', () => {
+  it('指数を上付き文字にする', () => {
+    expect(powerOfTen(-16)).toBe('10⁻¹⁶');
+    expect(powerOfTen(5)).toBe('10⁵');
   });
 });

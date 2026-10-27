@@ -37,6 +37,11 @@
   --q-magnetic: #0d9488;
   --q-current: #ca8a04;
   --q-heat: #e11d48;
+  --q-pressure: #4f46e5;
+  --q-volume: #65a30d;
+  --q-temperature: #c026d3;
+  --q-work: #0284c7;
+  --q-internal: #059669;
 
   --field-mechanics: #2563eb;
   --field-thermal: #e11d48;
@@ -79,6 +84,11 @@
   --q-magnetic: #2dd4bf;
   --q-current: #facc15;
   --q-heat: #fb7185;
+  --q-pressure: #818cf8;
+  --q-volume: #a3e635;
+  --q-temperature: #e879f9;
+  --q-work: #38bdf8;
+  --q-internal: #34d399;
 
   --field-mechanics: #60a5fa;
   --field-thermal: #fb7185;

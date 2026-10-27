@@ -29,6 +29,11 @@ export function formatSig(value: number, sig = 3): string {
   return `${formatFixed(mantissa, sig - 1)}×10${toSuperscript(exp)}`;
 }
 
+/** 10 のべき乗の表記（例: -16 → '10⁻¹⁶'）。グラフの軸の単位「×10⁻¹⁶ Pa」などに使う */
+export function powerOfTen(exp: number): string {
+  return `10${toSuperscript(exp)}`;
+}
+
 const SUPERSCRIPTS: Record<string, string> = {
   '-': '⁻',
   '0': '⁰',

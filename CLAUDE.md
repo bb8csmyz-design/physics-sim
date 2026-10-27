@@ -42,13 +42,14 @@ src/
       constants.ts        物理定数（g = 9.8）
   ui/                     共通 UI 部品（全単元で使う）
     layout.ts             mountSimulationLayout()  単元ページの標準レイアウト
-    params.ts             createParamPanel() / createSlider() / createToggle()
+    params.ts             createParamPanel() / createSlider() / createToggle() / createSelect()
     playback.ts           createPlaybackControls() / createTimeReadout()
     timeGraph.ts          createTimeGraph() / createGraphTabs()
-    valuePanel.ts         createValuePanel()
+    valuePanel.ts         createValuePanel() / createValueTable()（過程ごとの Q, W, ΔU などの表）
     math.ts               tex() / richText()
     theory.ts             theory() / section() / p() / eq() / ul() / note() / question()
     canvas.ts             createResponsiveCanvas() / fitViewport()
+    plot.ts               drawPlotAxes()  Canvas 内に描く x-y グラフ（p-V 図・分布など）の軸と目盛り
     draw.ts               drawArrow / drawSpring / drawBlock / drawBall / drawFixture / drawLabel ...
   pages/                  トップページ・単元ページの枠
   styles/                 tokens.css（色・余白）, base.css, components.css
@@ -132,13 +133,15 @@ src/
 - **言語は日本語**。用語は高校教科書に合わせる。ボタン名は「再生 / 一時停止 / リセット」など既存部品の表記を使う。
 - **レイアウトは `mountSimulationLayout()` を必ず使う**。セクションの名前と並び（シミュレーション → パラメータ →
   表示 → グラフ → 現在の値 → 解説）を単元ごとに変えない。独自のレイアウトや独自の再生ボタンを作らない。
-- **共通部品を使う**: スライダーは `createParamPanel`、グラフは `createTimeGraph`、値表示は `createValuePanel`、
+- **共通部品を使う**: スライダーは `createParamPanel`、選択肢は `createSelect`、グラフは `createTimeGraph`
+  （p-V 図など時間以外を横軸にする図は Canvas 内に `drawPlotAxes` で描く）、値表示は `createValuePanel` / `createValueTable`、
   数式は `tex` / `richText`、矢印・ばね・壁などの描画は `ui/draw.ts`。足りない機能は共通部品側に追加する
   （単元内で似た部品を作らない）。
 - **色**: 色は `styles/tokens.css` の CSS 変数と `getPalette()` 経由でのみ指定する（直書き禁止）。ダークモードで
   必ず確認する。**物理量の色は全単元共通**（`--q-*` / `QUANTITY_COLORS`）:
   位置 = 青, 速度 = 橙, 加速度 = 緑, 力 = 赤, 運動エネルギー = 黄, 位置エネルギー = 紫, 力学的エネルギー = 灰,
-  電場 = ピンク, 磁場 = 青緑, 電流 = 黄土, 熱 = ローズ。グラフ・矢印・値パネルの色見本で同じ色を使う。
+  電場 = ピンク, 磁場 = 青緑, 電流 = 黄土, 熱 = ローズ, 圧力 = 藍, 体積 = 黄緑, 温度 = 赤紫, 仕事 = 空色,
+  内部エネルギー = 緑青。グラフ・矢印・値パネルの色見本で同じ色を使う。
   新しい物理量の色が必要なら `tokens.css`（ライト・ダーク両方）と `theme.ts` の両方に追加する。
 - **矢印（ベクトル）**: 速度・力などは `drawArrow` で物理量の色を使い、記号のラベル（`v`, `F`）を付ける。
   長さはパラメータ範囲で画面からはみ出さないよう規格化する。

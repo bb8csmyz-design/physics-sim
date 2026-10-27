@@ -82,6 +82,11 @@ export const QUANTITY_COLORS = [
   'magnetic',
   'current',
   'heat',
+  'pressure',
+  'volume',
+  'temperature',
+  'work',
+  'internal',
 ] as const;
 export type Quantity = (typeof QUANTITY_COLORS)[number];
 

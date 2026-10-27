@@ -148,3 +148,39 @@ export function createToggle(
     },
   };
 }
+
+export interface SelectOption<V extends string> {
+  value: V;
+  label: string;
+}
+
+/**
+ * 選択肢（「サイクルの種類」「気体の種類」など、スライダーで表せない離散的なパラメータ）。
+ * onChange は選択が変わったときに呼ぶ。
+ */
+export function createSelect<V extends string>(
+  label: string,
+  options: readonly SelectOption<V>[],
+  initial: V,
+  onChange: (value: V) => void,
+): { element: HTMLElement; get value(): V } {
+  const id = `select-${Math.random().toString(36).slice(2, 8)}`;
+  const select = h(
+    'select',
+    { id, class: 'select select-field-input' },
+    options.map((o) => h('option', { value: o.value }, o.label)),
+  );
+  select.value = initial;
+  select.addEventListener('change', () => onChange(select.value as V));
+  return {
+    element: h(
+      'div',
+      { class: 'select-field' },
+      h('label', { for: id, class: 'slider-label' }, label),
+      select,
+    ),
+    get value() {
+      return select.value as V;
+    },
+  };
+}
