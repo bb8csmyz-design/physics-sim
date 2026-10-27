@@ -36,6 +36,8 @@ src/
     contour.ts            sampleGrid() / contourSegments()（等値線。等電位線などに使う）
     theme.ts              ライト/ダーク、Canvas 用パレット、物理量の色
     ticks.ts              グラフ目盛り
+    random.ts             シード付き乱数（確率的なモデル用。乱数の状態は物理の状態に含めて受け渡す）
+    spectrum.ts           光の波長 → 表示色（可視光の範囲・紫外線/赤外線の判定）
     sim/runner.ts         SimulationRunner（固定刻みの時間発展 + rAF 描画。timeScale でスロー再生、isFinished で衝突などの終了）
     physics/
       integrators.ts      数値積分（Euler, 中点法, RK4, シンプレクティック Euler, 速度ベルレ, 吉田4次）
@@ -47,6 +49,7 @@ src/
     params.ts             createParamPanel() / createSlider() / createToggle() / createChoice()（スイッチの切り替えなど択一）
     playback.ts           createPlaybackControls() / createTimeReadout()（unit: 's' / 'ms' / 'T'、注記「1/n 倍のスロー再生」と setNote）
     timeGraph.ts          createTimeGraph() / createGraphTabs()（timeUnit: 'ms' で横軸をミリ秒表示）
+    xyGraph.ts            createXYGraph()  横軸が時間でないグラフ（I-V 特性、E-n など）
     valuePanel.ts         createValuePanel() / createValueTable()（過程ごとの Q, W, ΔU などの表）
     math.ts               tex() / richText()
     theory.ts             theory() / section() / p() / eq() / ul() / note() / question()
@@ -57,6 +60,7 @@ src/
                           drawLabel / drawSymbol / drawBarChart
                           回路: drawCircuitElement（抵抗・コンデンサー・コイル・電池・交流電源）/ drawWire /
                           drawTerminal / drawJunction / drawFlowDots（電流の流れ）、drawOutOfPlaneMark（⊙ ⊗）
+                          原子: drawMeter（電流計・電圧計）/ drawPhoton（光子の波束）
   pages/                  トップページ・単元ページの枠
   styles/                 tokens.css（色・余白）, base.css, components.css
   units/
@@ -148,7 +152,9 @@ src/
   必ず確認する。**物理量の色は全単元共通**（`--q-*` / `QUANTITY_COLORS`）:
   位置 = 青, 速度 = 橙, 加速度 = 緑, 力 = 赤, 運動エネルギー = 黄, 位置エネルギー = 紫, 力学的エネルギー = 灰,
   電場 = ピンク, 磁場 = 青緑, 電流 = 黄土, 熱 = ローズ, 運動量 = 茶, 圧力 = 藍, 体積 = 黄緑, 温度 = 赤紫,
-  仕事 = 空色, 内部エネルギー = 緑青。グラフ・矢印・値パネルの色見本で同じ色を使う。
+  仕事 = 空色, 内部エネルギー = 緑青, 電子 = 紺, 原子核（崩壊前）= オリーブ, 崩壊後の原子核 = 濃い赤紫。
+  光（光子・スペクトル線）の色は波長で決まるので `core/spectrum.ts` の `wavelengthCss()` を使う（可視光以外は muted）。
+  グラフ・矢印・値パネルの色見本で同じ色を使う。
   新しい物理量の色が必要なら `tokens.css`（ライト・ダーク両方）と `theme.ts` の両方に追加する。
 - **矢印（ベクトル）**: 速度・力などは `drawArrow` で物理量の色を使い、記号のラベル（`v`, `F`）を付ける。
   長さはパラメータ範囲で画面からはみ出さないよう規格化する。

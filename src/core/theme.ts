@@ -88,6 +88,9 @@ export const QUANTITY_COLORS = [
   'temperature',
   'work',
   'internal',
+  'electron',
+  'nucleus',
+  'daughter',
 ] as const;
 export type Quantity = (typeof QUANTITY_COLORS)[number];
 
@@ -106,6 +109,8 @@ export interface Palette {
   fixture: string;
   /** 光を映すスクリーン（暗い幕） */
   screen: string;
+  /** スクリーン上の文字・目盛り（暗い幕の上で読める色） */
+  screenFg: string;
   quantity: Record<Quantity, string>;
 }
 
@@ -130,6 +135,7 @@ export function getPalette(): Palette {
     bodyStroke: cssVar(s, '--sim-body-stroke'),
     fixture: cssVar(s, '--sim-fixture'),
     screen: cssVar(s, '--sim-screen'),
+    screenFg: cssVar(s, '--sim-screen-fg'),
     quantity,
   };
   return cachedPalette;

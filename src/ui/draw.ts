@@ -752,3 +752,64 @@ export function drawFixturePolygon(
   ctx.stroke();
   ctx.restore();
 }
+
+/** 電流計・電圧計の記号（円の中に 'A' / 'V'）。中心 (cx, cy)、半径 r */
+export function drawMeter(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  r: number,
+  label: string,
+  color: string,
+  fill: string,
+): void {
+  drawBall(ctx, cx, cy, r, fill, color);
+  drawLabel(ctx, label, cx, cy + 0.5, color, { font: CANVAS_FONT });
+}
+
+/**
+ * 光子（光の粒）を表す波束。(x, y) を中心に、向き angle [rad] へ進む長さ len の波形を描く。
+ * wavelength は画面上の波の間隔 [px]（実際の波長に比例させると、色と波長の関係が見える）。
+ */
+export function drawPhoton(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  angle: number,
+  len: number,
+  wavelength: number,
+  color: string,
+  width = 2,
+): void {
+  const ux = Math.cos(angle);
+  const uy = Math.sin(angle);
+  const amp = Math.min(5, wavelength * 0.45);
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = width;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  const n = Math.max(8, Math.ceil(len / 1.5));
+  for (let i = 0; i <= n; i++) {
+    const s = -len / 2 + (len * i) / n;
+    // 両端で振幅が 0 になる包絡線
+    const env = Math.sin((Math.PI * i) / n);
+    const w = amp * env * Math.sin((2 * Math.PI * s) / wavelength);
+    const px = x + ux * s - uy * w;
+    const py = y + uy * s + ux * w;
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+  // 進む向きの小さな矢じり
+  const hx = x + (ux * len) / 2;
+  const hy = y + (uy * len) / 2;
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(hx + ux * 6, hy + uy * 6);
+  ctx.lineTo(hx - uy * 4, hy + ux * 4);
+  ctx.lineTo(hx + uy * 4, hy - ux * 4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}

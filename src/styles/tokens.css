@@ -26,6 +26,7 @@
   --sim-fixture: #64748b;
   /* 光の干渉を映すスクリーン（暗室の幕。テーマによらず暗い） */
   --sim-screen: #0b0d12;
+  --sim-screen-fg: #cbd5e1;
 
   --q-position: #2563eb;
   --q-velocity: #ea580c;
@@ -45,6 +46,9 @@
   --q-temperature: #c026d3;
   --q-work: #0284c7;
   --q-internal: #059669;
+  --q-electron: #312e81;
+  --q-nucleus: #4d7c0f;
+  --q-daughter: #86198f;
 
   --field-mechanics: #2563eb;
   --field-thermal: #e11d48;
@@ -75,6 +79,7 @@
   --sim-body-stroke: #f1f5f9;
   --sim-fixture: #8b95a7;
   --sim-screen: #05060a;
+  --sim-screen-fg: #cbd5e1;
 
   --q-position: #60a5fa;
   --q-velocity: #fb923c;
@@ -94,6 +99,9 @@
   --q-temperature: #e879f9;
   --q-work: #38bdf8;
   --q-internal: #34d399;
+  --q-electron: #6366f1;
+  --q-nucleus: #84cc16;
+  --q-daughter: #d946ef;
 
   --field-mechanics: #60a5fa;
   --field-thermal: #fb7185;

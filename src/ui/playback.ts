@@ -107,12 +107,12 @@ export function createPlaybackControls<S>(
 /**
  * 「t = 1.23 s」の時刻表示。render のたびに update(t) を呼ぶ。
  * - unit: 時刻の単位。光の波のように周期 T を単位にするときは 'T'（update には t/T を渡す）。
- *   'ms' なら update に秒で渡した t を 1000 倍してミリ秒で表示する（速い回路の現象など）
+ *   'ms' / 'ns' なら update に秒で渡した t をミリ秒・ナノ秒にして表示する（速い回路や電子の運動など）
  * - note: 補足（「1/50 倍のスロー再生」など、実時間と進み方が違うことを示す）。setNote で変えられる
  */
 export function createTimeReadout(
   digits = 2,
-  opts: { unit?: 's' | 'ms' | 'T'; note?: string } = {},
+  opts: { unit?: 's' | 'ms' | 'ns' | 'T'; note?: string } = {},
 ): { element: HTMLElement; update(t: number): void; setNote(note: string): void } {
   const unit = opts.unit ?? 's';
   const value = h('span', { class: 'num' });
@@ -130,7 +130,7 @@ export function createTimeReadout(
   return {
     element,
     update(t) {
-      value.textContent = formatFixed(unit === 'ms' ? t * 1000 : t, digits);
+      value.textContent = formatFixed(t * (unit === 'ms' ? 1e3 : unit === 'ns' ? 1e9 : 1), digits);
     },
     setNote(text) {
       note.textContent = text;
