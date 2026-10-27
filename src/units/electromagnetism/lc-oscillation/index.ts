@@ -35,14 +35,18 @@ const MILLI = 1e3;
 const MICRO = 1e6;
 
 const unit: UnitModule = {
-  mount(root, { disposer }) {
+  mount(root, { disposer, preset }) {
     const sceneOpt: SceneOptions = { showCurrent: true, showFields: true, showEnergyBars: true };
 
     // --- パラメータ（変更したら t = 0 からやり直す） ---
-    const params = createParamPanel(PARAMS, () => {
-      applyParams();
-      runner.reset();
-    });
+    const params = createParamPanel(
+      PARAMS,
+      () => {
+        applyParams();
+        runner.reset();
+      },
+      preset?.params,
+    );
     const p = (): LcParams => params.values;
 
     // --- 描画 ---

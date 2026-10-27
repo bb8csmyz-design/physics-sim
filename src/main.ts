@@ -44,6 +44,10 @@ themeBtn.addEventListener('click', () => setThemePreference(NEXT_THEME[getThemeP
 onThemeChange(syncThemeButton);
 syncThemeButton();
 
+// --- ヘッダーの演習モードへのリンク ---
+const practiceLink = document.getElementById('practice-link') as HTMLAnchorElement;
+practiceLink.prepend(icon('quiz'));
+
 // --- ルーティング ---
 const outlet = document.getElementById('app')!;
 let disposer = new Disposer();
@@ -55,6 +59,11 @@ onRouteChange((route) => {
   const gen = ++generation;
   outlet.replaceChildren();
   window.scrollTo(0, 0);
+  if (route.name === 'practice' || route.name === 'practiceUnit') {
+    practiceLink.setAttribute('aria-current', 'page');
+  } else {
+    practiceLink.removeAttribute('aria-current');
+  }
 
   if (route.name === 'home') {
     renderHome(outlet);
@@ -63,6 +72,26 @@ onRouteChange((route) => {
       sessionStorage.removeItem('scroll-to-field');
       document.getElementById(`field-${field}`)?.scrollIntoView({ block: 'start' });
     }
+  } else if (route.name === 'practice' || route.name === 'practiceUnit') {
+    // 演習ページは KaTeX を使うので遅延読み込みにする（トップページを軽く保つ）
+    import('@/pages/practice')
+      .then((m) => {
+        if (gen !== generation) return;
+        if (route.name === 'practice') m.renderPracticeHome(outlet, disposer);
+        else
+          void m.renderPracticeUnit(
+            outlet,
+            route.field,
+            route.slug,
+            disposer,
+            () => gen === generation,
+          );
+        outlet.querySelector<HTMLElement>('h1')?.focus({ preventScroll: true });
+      })
+      .catch((err: unknown) => {
+        console.error(err);
+        if (gen === generation) renderNotFound(outlet);
+      });
   } else if (route.name === 'unit') {
     const entry = findUnit(route.field, route.slug);
     if (entry) void renderUnit(outlet, entry, disposer, () => gen === generation);

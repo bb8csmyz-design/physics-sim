@@ -2,6 +2,7 @@ import type { Disposer } from '@/core/dom';
 import { h } from '@/core/dom';
 import { icon } from '@/ui/icons';
 import { fieldInfo } from '@/units/fields';
+import { parseHashQuery, presetFromQuery } from '@/router';
 import type { UnitEntry } from '@/units/types';
 
 export async function renderUnit(
@@ -26,7 +27,17 @@ export async function renderUnit(
       { class: 'unit-header', dataset: { field: entry.field } },
       h('h1', { tabindex: -1 }, entry.meta.title),
       h('p', { class: 'lead' }, entry.meta.summary),
-      h('span', { class: 'badge' }, entry.meta.level),
+      h(
+        'div',
+        { class: 'unit-header-row' },
+        h('span', { class: 'badge' }, entry.meta.level),
+        h(
+          'a',
+          { class: 'btn btn-small practice-link', href: `#/practice/${entry.field}/${entry.slug}` },
+          icon('quiz'),
+          '演習問題に挑戦',
+        ),
+      ),
     ),
     body,
   );
@@ -35,7 +46,9 @@ export async function renderUnit(
     const mod = await entry.load();
     if (!isCurrent()) return; // 読み込み中に別ページへ移動した
     body.replaceChildren();
-    mod.mount(body, { meta: entry.meta, disposer });
+    // URL のクエリ（p.<key>=値 など）で初期条件を指定できる（演習問題の答え合わせから開くとき）
+    const preset = presetFromQuery(parseHashQuery(location.hash));
+    mod.mount(body, { meta: entry.meta, disposer, ...(preset ? { preset } : {}) });
   } catch (err) {
     console.error(err);
     if (!isCurrent()) return;

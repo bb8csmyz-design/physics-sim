@@ -45,15 +45,19 @@ const NU_UNIT = 1e14; // Hz → ×10¹⁴ Hz
 const V_SPEC = PARAMS.find((s) => s.key === 'V')!;
 
 const unit: UnitModule = {
-  mount(root, { disposer }) {
+  mount(root, { disposer, preset }) {
     const sceneOpt: SceneOptions = { showPhotons: true, showField: true };
     let seed = 1;
 
     // --- パラメータ（変更したら t = 0 からやり直す） ---
-    const params = createParamPanel(PARAMS, () => {
-      applyParams();
-      runner.reset();
-    });
+    const params = createParamPanel(
+      PARAMS,
+      () => {
+        applyParams();
+        runner.reset();
+      },
+      preset?.params,
+    );
     const p = (): PhotoParams => params.values;
 
     // --- 描画 ---

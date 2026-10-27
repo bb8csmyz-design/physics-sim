@@ -34,14 +34,18 @@ import { buildTheory } from './theory';
 const TIME_SCALE = 1 / 50;
 
 const unit: UnitModule = {
-  mount(root, { disposer }) {
+  mount(root, { disposer, preset }) {
     const sceneOpt: SceneOptions = { showVelocity: true, showWavelength: false };
 
     // --- パラメータ（変更したら t = 0 からやり直す） ---
-    const params = createParamPanel(PARAMS, () => {
-      applyParams();
-      runner.reset();
-    });
+    const params = createParamPanel(
+      PARAMS,
+      () => {
+        applyParams();
+        runner.reset();
+      },
+      preset?.params,
+    );
     const p = (): DopplerParams => params.values;
 
     // --- 描画 ---

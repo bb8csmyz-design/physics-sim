@@ -37,15 +37,19 @@ const TIME_SCALE = 0.6;
 const DEG = 180 / Math.PI;
 
 const unit: UnitModule = {
-  mount(root, { disposer }) {
+  mount(root, { disposer, preset }) {
     const sceneOpt: SceneOptions = { showField: true, showRays: true };
     const field = createFieldRenderer();
 
     // --- パラメータ ---
-    const params = createParamPanel(PARAMS, () => {
-      applyParams();
-      runner.reset();
-    });
+    const params = createParamPanel(
+      PARAMS,
+      () => {
+        applyParams();
+        runner.reset();
+      },
+      preset?.params,
+    );
     const p = (): RefractionParams => params.values;
 
     // --- 描画 ---

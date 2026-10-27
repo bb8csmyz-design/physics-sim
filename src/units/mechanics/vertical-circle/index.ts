@@ -44,14 +44,18 @@ const KIND_LABEL: Record<MotionKind, string> = {
 };
 
 const unit: UnitModule = {
-  mount(root, { disposer }) {
+  mount(root, { disposer, preset }) {
     const sceneOpt: SceneOptions = { showVelocity: true, showForce: true, showSlackPoint: true };
 
     // --- パラメータ（変更したら t = 0 からやり直す） ---
-    const params = createParamPanel(PARAMS, () => {
-      applyParams();
-      runner.reset();
-    });
+    const params = createParamPanel(
+      PARAMS,
+      () => {
+        applyParams();
+        runner.reset();
+      },
+      preset?.params,
+    );
     const p = (): CircleParams => params.values;
 
     // --- 描画 ---

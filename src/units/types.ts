@@ -1,4 +1,5 @@
 import type { Disposer } from '@/core/dom';
+import type { ExerciseTemplate } from '@/core/exercise';
 
 /** 分野。フォルダ名 src/units/<FieldId>/ と一致させる */
 export type FieldId = 'mechanics' | 'thermal' | 'waves' | 'electromagnetism' | 'atomic';
@@ -19,10 +20,25 @@ export interface UnitMeta {
   keywords?: readonly string[];
 }
 
+/**
+ * 単元を開くときの初期条件（演習問題の答え合わせ・URL での共有に使う）。
+ * 単元は params を createParamPanel の第 3 引数に、choices を presetChoice() で択一の初期値に渡す。
+ */
+export interface UnitPreset {
+  /** スライダーの初期値（キーは PARAMS の key。範囲外・刻み外の値は丸める） */
+  params?: Readonly<Record<string, number>>;
+  /** 択一の切り替えの初期値（キーは単元が決める） */
+  choices?: Readonly<Record<string, string>>;
+  /** 単元固有の状態（サンドボックスの配置など） */
+  state?: string;
+}
+
 export interface UnitContext {
   meta: UnitMeta;
   /** ページ離脱時に呼ばれる後片付け。イベント登録・アニメーション停止などはここに登録する */
   disposer: Disposer;
+  /** 初期条件（指定がなければ既定値で開く） */
+  preset?: UnitPreset;
 }
 
 /** 単元本体。src/units/<分野>/<単元>/index.ts で `export default` する */
@@ -38,4 +54,6 @@ export interface UnitEntry {
   /** ルーティング用のハッシュ（例: '#/mechanics/spring-oscillation'） */
   href: string;
   load: () => Promise<UnitModule>;
+  /** 演習問題（exercises.ts の EXERCISES）を読み込む */
+  loadExercises: () => Promise<readonly ExerciseTemplate[]>;
 }

@@ -4,7 +4,7 @@
 import { SimulationRunner } from '@/core/sim/runner';
 import { createResponsiveCanvas } from '@/ui/canvas';
 import { mountSimulationLayout } from '@/ui/layout';
-import { createChoice, createParamPanel, createToggle } from '@/ui/params';
+import { createChoice, createParamPanel, createToggle, presetChoice } from '@/ui/params';
 import { createPlaybackControls, createTimeReadout } from '@/ui/playback';
 import { createGraphTabs, createTimeGraph } from '@/ui/timeGraph';
 import { createValuePanel } from '@/ui/valuePanel';
@@ -39,7 +39,7 @@ const KIND_LABEL = {
 const finite = (v: number) => (Number.isFinite(v) ? v : NaN);
 
 const unit: UnitModule = {
-  mount(root, { disposer }) {
+  mount(root, { disposer, preset }) {
     const sceneOpt: SceneOptions = { showRays: true, showVelocity: true };
 
     // --- パラメータ（変更したら t = 0 からやり直す） ---
@@ -49,16 +49,20 @@ const unit: UnitModule = {
         { value: 'convex', label: '凸レンズ' },
         { value: 'concave', label: '凹レンズ' },
       ],
-      'convex',
+      presetChoice(preset?.choices, 'kind', ['convex', 'concave'], 'convex'),
       () => {
         applyParams();
         runner.reset();
       },
     );
-    const params = createParamPanel(PARAMS, () => {
-      applyParams();
-      runner.reset();
-    });
+    const params = createParamPanel(
+      PARAMS,
+      () => {
+        applyParams();
+        runner.reset();
+      },
+      preset?.params,
+    );
     const p = (): LensParams => params.values;
     const kind = (): LensKind => kindChoice.value;
 

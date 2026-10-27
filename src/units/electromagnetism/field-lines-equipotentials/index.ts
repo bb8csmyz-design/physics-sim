@@ -34,7 +34,7 @@ const MICRO = 1e6;
 const TRAIL_MAX = 3000;
 
 const unit: UnitModule = {
-  mount(root, { disposer }) {
+  mount(root, { disposer, preset }) {
     const sceneOpt: SceneOptions = {
       showFieldLines: true,
       showEquipotentials: true,
@@ -44,10 +44,14 @@ const unit: UnitModule = {
     let trail: { x: number; y: number }[] = [];
 
     // --- パラメータ（変更したら t = 0 からやり直す） ---
-    const params = createParamPanel(PARAMS, () => {
-      applyParams();
-      runner.reset();
-    });
+    const params = createParamPanel(
+      PARAMS,
+      () => {
+        applyParams();
+        runner.reset();
+      },
+      preset?.params,
+    );
     const p = (): FieldParams => params.values;
 
     // --- 描画 ---

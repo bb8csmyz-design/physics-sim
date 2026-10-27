@@ -37,17 +37,21 @@ import { drawScene, type SceneOptions } from './scene';
 import { buildTheory } from './theory';
 
 const unit: UnitModule = {
-  mount(root, { disposer }) {
+  mount(root, { disposer, preset }) {
     const sceneOpt: SceneOptions = { showVelocity: true, showForce: true, showComponents: false };
 
     // --- パラメータ（変更したら t = 0 からやり直す） ---
-    const params = createParamPanel(PARAMS, (v, key) => {
-      // 動摩擦係数は静止摩擦係数を超えない（μ′ ≤ μ）ようにスライダーをそろえる
-      if (key === 'mu' && v.muk > v.mu) params.set('muk', v.mu);
-      else if (key === 'muk' && v.muk > v.mu) params.set('mu', v.muk);
-      applyParams();
-      runner.reset();
-    });
+    const params = createParamPanel(
+      PARAMS,
+      (v, key) => {
+        // 動摩擦係数は静止摩擦係数を超えない（μ′ ≤ μ）ようにスライダーをそろえる
+        if (key === 'mu' && v.muk > v.mu) params.set('muk', v.mu);
+        else if (key === 'muk' && v.muk > v.mu) params.set('mu', v.muk);
+        applyParams();
+        runner.reset();
+      },
+      preset?.params,
+    );
     const p = (): InclineParams => params.values;
 
     // --- 描画 ---

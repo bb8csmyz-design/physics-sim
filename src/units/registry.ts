@@ -4,12 +4,17 @@
  * src/units/<分野>/<単元>/meta.ts と index.ts を置くだけで一覧とルーティングに載る（手で登録しない）。
  * - meta.ts はトップページ表示に必要なので即時読み込み
  * - index.ts（シミュレーション本体）は単元を開いたときに遅延読み込み（コード分割）
+ * - exercises.ts（演習問題）は演習ページを開いたときに遅延読み込み
  */
+import type { ExerciseTemplate } from '@/core/exercise';
 import { FIELDS } from './fields';
 import type { FieldId, UnitEntry, UnitMeta, UnitModule } from './types';
 
 const metaModules = import.meta.glob<{ meta: UnitMeta }>('./*/*/meta.ts', { eager: true });
 const unitLoaders = import.meta.glob<{ default: UnitModule }>('./*/*/index.ts');
+const exerciseLoaders = import.meta.glob<{ EXERCISES: readonly ExerciseTemplate[] }>(
+  './*/*/exercises.ts',
+);
 
 const FIELD_IDS = new Set<string>(FIELDS.map((f) => f.id));
 
@@ -28,12 +33,15 @@ function buildEntries(): UnitEntry[] {
       console.error(`index.ts がない単元: ${path}`);
       continue;
     }
+    const exLoader = exerciseLoaders[`./${field}/${slug}/exercises.ts`];
     entries.push({
       field: field as FieldId,
       slug,
       meta: mod.meta,
       href: `#/${field}/${slug}`,
       load: async () => (await loader()).default,
+      // exercises.ts の存在は structure.test.ts で検査している
+      loadExercises: async () => (exLoader ? (await exLoader()).EXERCISES : []),
     });
   }
   return entries.sort((a, b) => a.meta.order - b.meta.order || a.slug.localeCompare(b.slug));

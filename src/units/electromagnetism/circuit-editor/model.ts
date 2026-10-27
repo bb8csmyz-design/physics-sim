@@ -696,3 +696,58 @@ export function closedSwitches(circuit: Circuit, ...names: string[]): boolean[] 
   const all = partNames(circuit);
   return circuit.parts.map((p, i) => p.kind === 'switch' && names.includes(all[i]!));
 }
+
+// ---------------------------------------------------------------------------
+// 回路を文字列にする（演習問題の答え合わせで、問題の回路を開くのに使う）
+// ---------------------------------------------------------------------------
+
+/** 回路と時間尺度を JSON 文字列にする（部品は PartSpec の並び） */
+export function encodeCircuit(circuit: Circuit, timeScale: number): string {
+  const parts: PartSpec[] = circuit.parts.map((p) => [
+    p.kind,
+    [p.p1.x, p.p1.y],
+    [p.p2.x, p.p2.y],
+    { ...p.values },
+  ]);
+  return JSON.stringify({ timeScale, parts });
+}
+
+/**
+ * encodeCircuit の文字列から回路を復元する。読めない・部品の種類や位置が正しくないときは null。
+ * 値はスライダーの範囲に収める。
+ */
+export function decodeCircuit(text: string): { circuit: Circuit; timeScale: number } | null {
+  let raw: unknown;
+  try {
+    raw = JSON.parse(text);
+  } catch {
+    return null;
+  }
+  if (typeof raw !== 'object' || raw === null) return null;
+  const obj = raw as { timeScale?: unknown; parts?: unknown };
+  const timeScale =
+    typeof obj.timeScale === 'number' && obj.timeScale > 0 ? obj.timeScale : 1 / 100;
+  if (!Array.isArray(obj.parts)) return null;
+  const specs: PartSpec[] = [];
+  for (const item of obj.parts as unknown[]) {
+    if (!Array.isArray(item) || item.length < 3) return null;
+    const [kind, a, b, values] = item as [unknown, unknown, unknown, unknown];
+    if (typeof kind !== 'string' || !(kind in PART_INFO)) return null;
+    const point = (q: unknown): [number, number] | null =>
+      Array.isArray(q) && q.length === 2 && q.every((n) => Number.isInteger(n))
+        ? [q[0] as number, q[1] as number]
+        : null;
+    const p1 = point(a);
+    const p2 = point(b);
+    if (!p1 || !p2 || !isGridEdge({ x: p1[0], y: p1[1] }, { x: p2[0], y: p2[1] })) return null;
+    const vals: Record<string, number> = {};
+    for (const spec of PART_INFO[kind as PartKind].params) {
+      const v = (values as Record<string, unknown> | undefined)?.[spec.key];
+      if (typeof v === 'number' && Number.isFinite(v)) {
+        vals[spec.key] = Math.min(spec.max, Math.max(spec.min, v));
+      }
+    }
+    specs.push([kind as PartKind, p1, p2, vals]);
+  }
+  return { circuit: circuitFrom(specs), timeScale };
+}
