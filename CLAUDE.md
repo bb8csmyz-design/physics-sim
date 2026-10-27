@@ -33,23 +33,26 @@ src/
     dom.ts                h() / symbol() / Disposer
     format.ts             数値表示（負号 U+2212、有効数字）
     params.ts             ParamSpec 型・paramCorners()（テスト用の全隅の組）
+    contour.ts            sampleGrid() / contourSegments()（等値線。等電位線などに使う）
     theme.ts              ライト/ダーク、Canvas 用パレット、物理量の色
     ticks.ts              グラフ目盛り
-    sim/runner.ts         SimulationRunner（固定刻みの時間発展 + rAF 描画）
+    sim/runner.ts         SimulationRunner（固定刻みの時間発展 + rAF 描画。timeScale でスロー再生、isFinished で衝突などの終了）
     physics/
       integrators.ts      数値積分（Euler, 中点法, RK4, シンプレクティック Euler, 速度ベルレ, 吉田4次）
       analysis.ts         検証用（相対誤差・収束次数・周期推定）
       constants.ts        物理定数（g = 9.8）
   ui/                     共通 UI 部品（全単元で使う）
     layout.ts             mountSimulationLayout()  単元ページの標準レイアウト
-    params.ts             createParamPanel() / createSlider() / createToggle()
-    playback.ts           createPlaybackControls() / createTimeReadout()
-    timeGraph.ts          createTimeGraph() / createGraphTabs()
+    params.ts             createParamPanel() / createSlider() / createToggle() / createChoice()（スイッチの切り替えなど択一）
+    playback.ts           createPlaybackControls() / createTimeReadout()（unit: 's' / 'ms' / 'T'、注記「1/n 倍のスロー再生」と setNote）
+    timeGraph.ts          createTimeGraph() / createGraphTabs()（timeUnit: 'ms' で横軸をミリ秒表示）
     valuePanel.ts         createValuePanel()
     math.ts               tex() / richText()
     theory.ts             theory() / section() / p() / eq() / ul() / note() / question()
     canvas.ts             createResponsiveCanvas() / fitViewport()
-    draw.ts               drawArrow / drawSpring / drawBlock / drawBall / drawFixture / drawLabel ...
+    draw.ts               drawArrow / drawSpring / drawBlock / drawBall / drawFixture / drawLabel / drawSymbol / drawBarChart
+                          回路: drawCircuitElement（抵抗・コンデンサー・コイル・電池・交流電源）/ drawWire /
+                          drawTerminal / drawJunction / drawFlowDots（電流の流れ）、drawOutOfPlaneMark（⊙ ⊗）
   pages/                  トップページ・単元ページの枠
   styles/                 tokens.css（色・余白）, base.css, components.css
   units/

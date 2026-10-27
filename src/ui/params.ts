@@ -155,15 +155,16 @@ export interface ChoiceOption<V extends string> {
 }
 
 /**
- * 択一の切り替え（「弦 / 開管 / 閉管」「凸レンズ / 凹レンズ」など、スライダーで表せない条件）。
- * パラメータパネルの上に置く。値が変わったら onChange を呼ぶ。
+ * 択一の切り替え（「弦 / 開管 / 閉管」「凸レンズ / 凹レンズ」、回路のスイッチの接続先など、
+ * スライダーで表せない条件）。パラメータパネルの上に置く。
+ * ユーザーの操作で値が変わったら onChange を呼ぶ。value への代入（リセット時に戻すなど）では呼ばない。
  */
 export function createChoice<V extends string>(
   label: string,
   options: readonly ChoiceOption<V>[],
   initial: V,
   onChange: (value: V) => void,
-): { readonly element: HTMLElement; readonly value: V } {
+): { readonly element: HTMLElement; value: V } {
   let value = initial;
   const buttons = options.map((o) =>
     h(
@@ -173,16 +174,18 @@ export function createChoice<V extends string>(
         role: 'radio',
         class: 'seg-btn',
         'aria-checked': String(o.value === initial),
-        onclick: () => select(o.value),
+        onclick: () => {
+          if (o.value === value) return;
+          select(o.value);
+          onChange(o.value);
+        },
       },
       o.label,
     ),
   );
   function select(v: V) {
-    if (v === value) return;
     value = v;
     options.forEach((o, i) => buttons[i]!.setAttribute('aria-checked', String(o.value === v)));
-    onChange(v);
   }
   const element = h(
     'div',
@@ -194,6 +197,9 @@ export function createChoice<V extends string>(
     element,
     get value() {
       return value;
+    },
+    set value(v: V) {
+      select(v);
     },
   };
 }

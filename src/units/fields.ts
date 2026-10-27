@@ -44,16 +44,7 @@ export const FIELDS: readonly FieldInfo[] = [
     id: 'electromagnetism',
     name: '電磁気',
     description: '電場と磁場、回路、電磁誘導',
-    planned: [
-      '点電荷の電場と電位',
-      'コンデンサー',
-      '直流回路とキルヒホッフの法則',
-      'RC 回路の過渡現象',
-      '磁場中の荷電粒子の運動',
-      '電磁誘導',
-      '交流回路と RLC 共振',
-      '電気振動（LC 回路）',
-    ],
+    planned: ['コンデンサー', '直流回路とキルヒホッフの法則'],
   },
   {
     id: 'atomic',
