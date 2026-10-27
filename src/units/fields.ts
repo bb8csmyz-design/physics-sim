@@ -23,7 +23,7 @@ export const FIELDS: readonly FieldInfo[] = [
     id: 'thermal',
     name: '熱',
     description: '熱と温度、気体の状態変化と熱力学',
-    planned: ['気体分子運動論', '理想気体の状態変化と p-V 図', '熱サイクルと熱効率', '熱量と比熱'],
+    planned: ['熱量と比熱'],
   },
   {
     id: 'waves',

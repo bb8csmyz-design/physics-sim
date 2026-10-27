@@ -64,3 +64,103 @@ export function createValuePanel<K extends string>(specs: readonly ValueSpec<K>[
     },
   };
 }
+
+export interface TableColumn<C extends string = string> {
+  key: C;
+  /** 列見出し（例: '吸収した熱量'）。記号だけで分かるなら空文字でもよい */
+  label: string;
+  symbol?: string;
+  unit?: string;
+  /** 小数点以下の桁数。省略時は有効数字 3 桁 */
+  digits?: number;
+  quantity?: Quantity;
+}
+
+export interface TableRow<R extends string = string> {
+  key: R;
+  /** 行見出し（例: 'A→B 定積変化'） */
+  label: string;
+  /** 合計行として太字で表示する */
+  total?: boolean;
+}
+
+export interface ValueTable<R extends string, C extends string> {
+  readonly element: HTMLElement;
+  update(values: Partial<Record<R, Partial<Record<C, number>>>>): void;
+  /** 行を強調表示する（現在進行中の過程など）。null で解除 */
+  setActive(row: R | null): void;
+}
+
+/**
+ * 値の表。行 = 過程や状態（A→B, B→C, …）、列 = 物理量（Q, W, ΔU など）。
+ * 過程ごとの値を比べたいときに使う（1 列だけなら createValuePanel を使う）。
+ */
+export function createValueTable<R extends string, C extends string>(
+  columns: readonly TableColumn<C>[],
+  rows: readonly TableRow<R>[],
+  caption?: string,
+): ValueTable<R, C> {
+  const cells = new Map<R, Map<C, HTMLElement>>();
+  const rowEls = new Map<R, HTMLElement>();
+  const head = h(
+    'tr',
+    null,
+    h('th', { scope: 'col' }, ''),
+    columns.map((c) =>
+      h(
+        'th',
+        { scope: 'col' },
+        c.quantity
+          ? h('span', { class: 'swatch', style: { '--swatch': quantityCssVar(c.quantity) } })
+          : null,
+        c.label,
+        c.symbol ? [c.label ? ' ' : '', symbol(c.symbol)] : null,
+        c.unit ? h('span', { class: 'unit' }, ` [${c.unit}]`) : null,
+      ),
+    ),
+  );
+  const body = rows.map((r) => {
+    const m = new Map<C, HTMLElement>();
+    cells.set(r.key, m);
+    const tr = h(
+      'tr',
+      { class: { 'is-total': !!r.total } },
+      h('th', { scope: 'row' }, r.label),
+      columns.map((c) => {
+        const td = h('td', null, '—');
+        m.set(c.key, td);
+        return td;
+      }),
+    );
+    rowEls.set(r.key, tr);
+    return tr;
+  });
+  return {
+    element: h(
+      'div',
+      { class: 'value-table-wrap' },
+      h(
+        'table',
+        { class: 'value-table' },
+        caption ? h('caption', { class: 'visually-hidden' }, caption) : null,
+        h('thead', null, head),
+        h('tbody', null, body),
+      ),
+    ),
+    update(values) {
+      for (const r of rows) {
+        const rv = values[r.key];
+        if (!rv) continue;
+        for (const c of columns) {
+          const v = rv[c.key];
+          if (v === undefined) continue;
+          cells.get(r.key)!.get(c.key)!.textContent =
+            c.digits === undefined ? formatSig(v, 3) : formatFixed(v, c.digits);
+        }
+      }
+    },
+    setActive(row) {
+      for (const [k, tr] of rowEls) tr.classList.toggle('is-active', k === row);
+    },
+  };
+}
