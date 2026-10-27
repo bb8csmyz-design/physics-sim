@@ -151,11 +151,7 @@ const unit: UnitModule = {
       { key: 'If', label: '十分後の電流', symbol: 'E/R', unit: 'mA' },
       { key: 'Uf', label: '十分後のエネルギー', symbol: 'LI²/2', unit: 'mJ' },
     ]);
-    const time = createTimeReadout({
-      digits: 1,
-      unit: 'ms',
-      note: `スロー再生 1/${1 / TIME_SCALE}`,
-    });
+    const time = createTimeReadout(1, { unit: 'ms', note: `1/${1 / TIME_SCALE} 倍のスロー再生` });
 
     function applyParams() {
       const tau = timeConstant(p());
@@ -218,7 +214,7 @@ const unit: UnitModule = {
       // コマ送り 1 回 = 0.5 ms
       playback: createPlaybackControls(runner, disposer, { stepDuration: 5e-4 }),
       status: time.element,
-      params: h('div', { class: 'param-panel' }, switchChoice.element, params.element),
+      params: h('div', null, switchChoice.element, params.element),
       options: h(
         'div',
         { class: 'toggle-list' },

@@ -132,11 +132,7 @@ const unit: UnitModule = {
       { key: 'Q0', label: '電気量の最大値', symbol: 'Q_0', unit: 'μC' },
       { key: 'I0', label: '電流の最大値', symbol: 'I_0', unit: 'mA' },
     ]);
-    const time = createTimeReadout({
-      digits: 2,
-      unit: 'ms',
-      note: `スロー再生 1/${1 / TIME_SCALE}`,
-    });
+    const time = createTimeReadout(2, { unit: 'ms', note: `1/${1 / TIME_SCALE} 倍のスロー再生` });
 
     const sym = (m: number): [number, number] => {
       const [, hi] = niceBounds(-m, m, 4);

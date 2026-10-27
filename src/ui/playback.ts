@@ -104,37 +104,36 @@ export function createPlaybackControls<S>(
   );
 }
 
-export interface TimeReadoutOptions {
-  /** 小数点以下の桁数（既定 2） */
-  digits?: number;
-  /** 表示単位。'ms' なら t × 1000 をミリ秒で表示する（速い現象をスロー再生する単元用） */
-  unit?: 's' | 'ms';
-  /** 時刻の後ろに小さく添える注記（例: 'スロー再生 1/500'） */
-  note?: string;
-}
-
-/** 「t = 1.23 s」の時刻表示。render のたびに update(t) を呼ぶ。t は常に秒で渡す */
-export function createTimeReadout(opts: number | TimeReadoutOptions = 2): {
-  element: HTMLElement;
-  update(t: number): void;
-} {
-  const o = typeof opts === 'number' ? { digits: opts } : opts;
-  const digits = o.digits ?? 2;
-  const unit = o.unit ?? 's';
+/**
+ * 「t = 1.23 s」の時刻表示。render のたびに update(t) を呼ぶ。
+ * - unit: 時刻の単位。光の波のように周期 T を単位にするときは 'T'（update には t/T を渡す）。
+ *   'ms' なら update に秒で渡した t を 1000 倍してミリ秒で表示する（速い回路の現象など）
+ * - note: 補足（「1/50 倍のスロー再生」など、実時間と進み方が違うことを示す）。setNote で変えられる
+ */
+export function createTimeReadout(
+  digits = 2,
+  opts: { unit?: 's' | 'ms' | 'T'; note?: string } = {},
+): { element: HTMLElement; update(t: number): void; setNote(note: string): void } {
+  const unit = opts.unit ?? 's';
   const value = h('span', { class: 'num' });
+  const note = h('span', { class: 'time-note' }, opts.note ?? '');
   const element = h(
     'div',
     { class: 'time-readout' },
     h('var', null, 't'),
     ' = ',
     value,
-    ` ${unit}`,
-    o.note ? h('span', { class: 'unit time-note' }, o.note) : null,
+    ' ',
+    unit === 'T' ? h('var', null, 'T') : unit,
+    note,
   );
   return {
     element,
     update(t) {
       value.textContent = formatFixed(unit === 'ms' ? t * 1000 : t, digits);
+    },
+    setNote(text) {
+      note.textContent = text;
     },
   };
 }

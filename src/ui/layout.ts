@@ -11,6 +11,7 @@
  *  │ 解説 (theory)                                    │
  *  └────────────────────────────────────────────────┘
  *  スマホでは 1 列: stage(+playback) → params → options → graphs → values → theory
+ *  時間グラフが意味を持たない単元（光学など）は graphs を省略でき、PC では values が stage の横に入る。
  */
 import { h } from '@/core/dom';
 
@@ -46,7 +47,7 @@ export function mountSimulationLayout(root: HTMLElement, parts: SimulationLayout
   root.append(
     h(
       'div',
-      { class: 'sim-layout' },
+      { class: parts.graphs ? 'sim-layout' : 'sim-layout no-graphs' },
       h(
         'section',
         {

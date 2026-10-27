@@ -155,25 +155,27 @@ export interface ChoiceOption<V extends string> {
 }
 
 /**
- * 択一の切り替え（スイッチの接続先など）。セグメント型のボタン列。
- * onChange はユーザー操作で選択が変わったときだけ呼ぶ（value の代入では呼ばない）。
+ * 択一の切り替え（「弦 / 開管 / 閉管」「凸レンズ / 凹レンズ」、回路のスイッチの接続先など、
+ * スライダーで表せない条件）。パラメータパネルの上に置く。
+ * ユーザーの操作で値が変わったら onChange を呼ぶ。value への代入（リセット時に戻すなど）では呼ばない。
  */
 export function createChoice<V extends string>(
   label: string,
   options: readonly ChoiceOption<V>[],
   initial: V,
   onChange: (value: V) => void,
-): { element: HTMLElement; get value(): V; set value(v: V) } {
-  let current = initial;
+): { readonly element: HTMLElement; value: V } {
+  let value = initial;
   const buttons = options.map((o) =>
     h(
       'button',
       {
         type: 'button',
         role: 'radio',
-        class: 'seg-btn choice-btn',
+        class: 'seg-btn',
+        'aria-checked': String(o.value === initial),
         onclick: () => {
-          if (current === o.value) return;
+          if (o.value === value) return;
           select(o.value);
           onChange(o.value);
         },
@@ -182,20 +184,19 @@ export function createChoice<V extends string>(
     ),
   );
   function select(v: V) {
-    current = v;
+    value = v;
     options.forEach((o, i) => buttons[i]!.setAttribute('aria-checked', String(o.value === v)));
   }
-  select(initial);
-  const labelId = `choice-${Math.random().toString(36).slice(2, 8)}`;
+  const element = h(
+    'div',
+    { class: 'choice' },
+    h('span', { class: 'slider-label' }, label),
+    h('div', { class: 'seg', role: 'radiogroup', 'aria-label': label }, buttons),
+  );
   return {
-    element: h(
-      'div',
-      { class: 'choice' },
-      h('span', { class: 'slider-label', id: labelId }, label),
-      h('div', { class: 'seg', role: 'radiogroup', 'aria-labelledby': labelId }, buttons),
-    ),
+    element,
     get value() {
-      return current;
+      return value;
     },
     set value(v: V) {
       select(v);

@@ -212,6 +212,46 @@ export function drawLabel(
   ctx.restore();
 }
 
+/**
+ * 物理量の記号（'v_S', 'θ_1', 'λ' など）。'_' 以降を立体の添字で描く（core/dom.ts の symbol() と同じ書式）。
+ * 中心 (x, y) に置く。suffix（' = 0.68 m' など）は記号の後ろに通常の文字で続ける。
+ */
+export function drawSymbol(
+  ctx: CanvasRenderingContext2D,
+  sym: string,
+  x: number,
+  y: number,
+  color: string,
+  opts: { align?: 'left' | 'center' | 'right'; suffix?: string } = {},
+): void {
+  const [base = '', sub = ''] = sym.split('_');
+  ctx.save();
+  ctx.fillStyle = color;
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'left';
+  ctx.font = CANVAS_FONT_MATH;
+  const wBase = ctx.measureText(base).width;
+  ctx.font = CANVAS_FONT_SMALL;
+  const wSub = sub ? ctx.measureText(sub).width + 1 : 0;
+  const wSuffix = opts.suffix ? ctx.measureText(opts.suffix).width : 0;
+  const total = wBase + wSub + wSuffix;
+  const align = opts.align ?? 'center';
+  let cx = align === 'left' ? x : align === 'right' ? x - total : x - total / 2;
+  ctx.font = CANVAS_FONT_MATH;
+  ctx.fillText(base, cx, y);
+  cx += wBase;
+  if (sub) {
+    ctx.font = CANVAS_FONT_SMALL;
+    ctx.fillText(sub, cx + 1, y + 5);
+    cx += wSub;
+  }
+  if (opts.suffix) {
+    ctx.font = CANVAS_FONT_SMALL;
+    ctx.fillText(opts.suffix, cx, y);
+  }
+  ctx.restore();
+}
+
 // ---------------------------------------------------------------------------
 // 電磁気の図記号（回路素子・紙面に垂直な場・電流の流れ）
 // ---------------------------------------------------------------------------

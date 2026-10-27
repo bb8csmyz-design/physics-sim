@@ -293,6 +293,14 @@ a.unit-card:hover {
     grid-template-rows: auto 1fr auto;
     align-items: start;
   }
+  /* 時間グラフのない単元（光学など）は、現在の値をシミュレーションの横に置く */
+  .sim-layout.no-graphs {
+    grid-template-areas:
+      'stage params'
+      'stage options'
+      'stage values';
+    grid-template-rows: auto auto 1fr;
+  }
 }
 
 .panel {
@@ -389,6 +397,8 @@ a.unit-card:hover {
 }
 .time-note {
   margin-left: 8px;
+  font-size: 0.78rem;
+  color: var(--fg-muted);
 }
 
 /* --- スライダー --- */
@@ -563,13 +573,14 @@ a.unit-card:hover {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  margin-bottom: 14px;
 }
 .choice .seg {
   display: flex;
   margin-bottom: 0;
 }
-.choice-btn {
-  flex: 1 1 0;
+.choice .seg-btn {
+  flex: 1 1 auto;
   min-height: 40px;
 }
 

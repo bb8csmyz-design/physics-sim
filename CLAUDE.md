@@ -44,13 +44,13 @@ src/
   ui/                     共通 UI 部品（全単元で使う）
     layout.ts             mountSimulationLayout()  単元ページの標準レイアウト
     params.ts             createParamPanel() / createSlider() / createToggle() / createChoice()（スイッチの切り替えなど択一）
-    playback.ts           createPlaybackControls() / createTimeReadout()（unit: 'ms' と注記「スロー再生 1/n」に対応）
+    playback.ts           createPlaybackControls() / createTimeReadout()（unit: 's' / 'ms' / 'T'、注記「1/n 倍のスロー再生」と setNote）
     timeGraph.ts          createTimeGraph() / createGraphTabs()（timeUnit: 'ms' で横軸をミリ秒表示）
     valuePanel.ts         createValuePanel()
     math.ts               tex() / richText()
     theory.ts             theory() / section() / p() / eq() / ul() / note() / question()
     canvas.ts             createResponsiveCanvas() / fitViewport()
-    draw.ts               drawArrow / drawSpring / drawBlock / drawBall / drawFixture / drawLabel / drawBarChart
+    draw.ts               drawArrow / drawSpring / drawBlock / drawBall / drawFixture / drawLabel / drawSymbol / drawBarChart
                           回路: drawCircuitElement（抵抗・コンデンサー・コイル・電池・交流電源）/ drawWire /
                           drawTerminal / drawJunction / drawFlowDots（電流の流れ）、drawOutOfPlaneMark（⊙ ⊗）
   pages/                  トップページ・単元ページの枠

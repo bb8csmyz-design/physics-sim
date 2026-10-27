@@ -230,7 +230,7 @@ const unit: UnitModule = {
       stage: stage.element,
       playback: createPlaybackControls(runner, disposer),
       status: time.element,
-      params: h('div', { class: 'param-panel' }, switchChoice.element, params.element),
+      params: h('div', null, switchChoice.element, params.element),
       options: h(
         'div',
         { class: 'toggle-list' },

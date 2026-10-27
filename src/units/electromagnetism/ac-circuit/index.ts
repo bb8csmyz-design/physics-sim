@@ -144,11 +144,7 @@ const unit: UnitModule = {
       { key: 'P', label: '平均の消費電力', symbol: 'P', unit: 'W' },
       { key: 'f0', label: '共振周波数', symbol: 'f_0', unit: 'Hz' },
     ]);
-    const time = createTimeReadout({
-      digits: 1,
-      unit: 'ms',
-      note: `スロー再生 1/${1 / TIME_SCALE}`,
-    });
+    const time = createTimeReadout(1, { unit: 'ms', note: `1/${1 / TIME_SCALE} 倍のスロー再生` });
 
     const sym = (m: number): [number, number] => {
       const [, hi] = niceBounds(-m, m, 4);
