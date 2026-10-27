@@ -104,14 +104,37 @@ export function createPlaybackControls<S>(
   );
 }
 
-/** 「t = 1.23 s」の時刻表示。render のたびに update(t) を呼ぶ */
-export function createTimeReadout(digits = 2): { element: HTMLElement; update(t: number): void } {
+export interface TimeReadoutOptions {
+  /** 小数点以下の桁数（既定 2） */
+  digits?: number;
+  /** 表示単位。'ms' なら t × 1000 をミリ秒で表示する（速い現象をスロー再生する単元用） */
+  unit?: 's' | 'ms';
+  /** 時刻の後ろに小さく添える注記（例: 'スロー再生 1/500'） */
+  note?: string;
+}
+
+/** 「t = 1.23 s」の時刻表示。render のたびに update(t) を呼ぶ。t は常に秒で渡す */
+export function createTimeReadout(opts: number | TimeReadoutOptions = 2): {
+  element: HTMLElement;
+  update(t: number): void;
+} {
+  const o = typeof opts === 'number' ? { digits: opts } : opts;
+  const digits = o.digits ?? 2;
+  const unit = o.unit ?? 's';
   const value = h('span', { class: 'num' });
-  const element = h('div', { class: 'time-readout' }, h('var', null, 't'), ' = ', value, ' s');
+  const element = h(
+    'div',
+    { class: 'time-readout' },
+    h('var', null, 't'),
+    ' = ',
+    value,
+    ` ${unit}`,
+    o.note ? h('span', { class: 'unit time-note' }, o.note) : null,
+  );
   return {
     element,
     update(t) {
-      value.textContent = formatFixed(t, digits);
+      value.textContent = formatFixed(unit === 'ms' ? t * 1000 : t, digits);
     },
   };
 }

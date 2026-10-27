@@ -211,3 +211,321 @@ export function drawLabel(
   ctx.fillText(text, x, y);
   ctx.restore();
 }
+
+// ---------------------------------------------------------------------------
+// 電磁気の図記号（回路素子・紙面に垂直な場・電流の流れ）
+// ---------------------------------------------------------------------------
+
+export type CircuitElementKind = 'resistor' | 'capacitor' | 'coil' | 'battery' | 'ac-source';
+
+export interface CircuitElementStyle {
+  color: string;
+  /** 記号の塗り（抵抗の箱・交流電源の円の内側）。省略時は塗らない */
+  fill?: string;
+  width?: number;
+  /** 記号部分の長さ [px]（導線方向）。省略時は素子ごとの既定値 */
+  size?: number;
+}
+
+const ELEMENT_SIZE: Record<CircuitElementKind, number> = {
+  resistor: 44,
+  capacitor: 12,
+  coil: 48,
+  battery: 10,
+  'ac-source': 30,
+};
+
+/**
+ * (x0, y0) から (x1, y1) への導線の中央に回路素子の記号を描く（JIS C 0617 の記号）。
+ * 電池は (x1, y1) 側が正極（長い線）。交流電源は円の中に正弦波。
+ */
+export function drawCircuitElement(
+  ctx: CanvasRenderingContext2D,
+  kind: CircuitElementKind,
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  style: CircuitElementStyle,
+): void {
+  const len = Math.hypot(x1 - x0, y1 - y0);
+  const size = Math.min(style.size ?? ELEMENT_SIZE[kind], len * 0.8);
+  const a = (len - size) / 2;
+  const b = (len + size) / 2;
+  ctx.save();
+  ctx.translate(x0, y0);
+  ctx.rotate(Math.atan2(y1 - y0, x1 - x0));
+  ctx.strokeStyle = style.color;
+  ctx.fillStyle = style.color;
+  ctx.lineWidth = style.width ?? 2;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  // 導線（記号の両側）
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(a, 0);
+  ctx.moveTo(b, 0);
+  ctx.lineTo(len, 0);
+  ctx.stroke();
+  ctx.beginPath();
+  switch (kind) {
+    case 'resistor': {
+      const hgt = size * 0.32;
+      ctx.rect(a, -hgt / 2, size, hgt);
+      if (style.fill) {
+        ctx.fillStyle = style.fill;
+        ctx.fill();
+      }
+      ctx.stroke();
+      break;
+    }
+    case 'capacitor': {
+      const plate = 30;
+      ctx.lineWidth = (style.width ?? 2) * 1.5;
+      ctx.moveTo(a, -plate / 2);
+      ctx.lineTo(a, plate / 2);
+      ctx.moveTo(b, -plate / 2);
+      ctx.lineTo(b, plate / 2);
+      ctx.stroke();
+      break;
+    }
+    case 'coil': {
+      const n = 4;
+      const r = size / n / 2;
+      for (let i = 0; i < n; i++) {
+        const cx = a + r * (2 * i + 1);
+        ctx.moveTo(cx - r, 0);
+        ctx.arc(cx, 0, r, Math.PI, 0, false);
+      }
+      ctx.stroke();
+      break;
+    }
+    case 'battery': {
+      // 負極（短く太い線）→ 正極（長く細い線）
+      ctx.lineWidth = (style.width ?? 2) * 2;
+      ctx.moveTo(a, -8);
+      ctx.lineTo(a, 8);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.lineWidth = style.width ?? 2;
+      ctx.moveTo(b, -16);
+      ctx.lineTo(b, 16);
+      ctx.stroke();
+      break;
+    }
+    case 'ac-source': {
+      const r = size / 2;
+      ctx.arc(a + r, 0, r, 0, Math.PI * 2);
+      if (style.fill) {
+        ctx.fillStyle = style.fill;
+        ctx.fill();
+      }
+      ctx.stroke();
+      ctx.beginPath();
+      // 円の中の正弦波（導線の向きに依存しないよう、回転を戻して横向きに描く）
+      ctx.save();
+      ctx.translate(a + r, 0);
+      ctx.rotate(-Math.atan2(y1 - y0, x1 - x0));
+      for (let i = 0; i <= 24; i++) {
+        const u = (i / 24) * 2 - 1;
+        const x = u * r * 0.6;
+        const y = -Math.sin(u * Math.PI) * r * 0.35;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.restore();
+      break;
+    }
+  }
+  ctx.restore();
+}
+
+/** 導線（折れ線） */
+export function drawWire(
+  ctx: CanvasRenderingContext2D,
+  points: readonly { x: number; y: number }[],
+  color: string,
+  width = 2,
+): void {
+  if (points.length < 2) return;
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = width;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  points.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
+  ctx.stroke();
+  ctx.restore();
+}
+
+/** 端子・接点（白抜きの小円）。fill は背景色を渡す */
+export function drawTerminal(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  color: string,
+  fill: string,
+  r = 4,
+): void {
+  drawBall(ctx, x, y, r, fill, color);
+}
+
+/** 導線の接続点（黒丸） */
+export function drawJunction(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  color: string,
+  r = 3.5,
+): void {
+  ctx.save();
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+/**
+ * 紙面に垂直なベクトル（磁場など）の記号。
+ * 'out' = ⊙（紙面の裏から表へ）, 'in' = ⊗（紙面の表から裏へ）
+ */
+export function drawOutOfPlaneMark(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  r: number,
+  direction: 'out' | 'in',
+  color: string,
+): void {
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineWidth = Math.max(1, r / 5);
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.beginPath();
+  if (direction === 'out') {
+    ctx.arc(x, y, r * 0.28, 0, Math.PI * 2);
+    ctx.fill();
+  } else {
+    const d = r * 0.6;
+    ctx.moveTo(x - d, y - d);
+    ctx.lineTo(x + d, y + d);
+    ctx.moveTo(x - d, y + d);
+    ctx.lineTo(x + d, y - d);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+/**
+ * 折れ線に沿って等間隔の点を描く（電流の流れの表示）。
+ * offset [px] を電流に比例して増やすと点が流れる（負なら逆向き）。
+ */
+export function drawFlowDots(
+  ctx: CanvasRenderingContext2D,
+  points: readonly { x: number; y: number }[],
+  offset: number,
+  opts: { color: string; spacing?: number; radius?: number },
+): void {
+  const spacing = opts.spacing ?? 24;
+  const lengths: number[] = [];
+  let total = 0;
+  for (let i = 1; i < points.length; i++) {
+    const l = Math.hypot(points[i]!.x - points[i - 1]!.x, points[i]!.y - points[i - 1]!.y);
+    lengths.push(l);
+    total += l;
+  }
+  if (total <= 0 || !Number.isFinite(offset)) return;
+  ctx.save();
+  ctx.fillStyle = opts.color;
+  let s = ((offset % spacing) + spacing) % spacing;
+  let seg = 0;
+  let segStart = 0;
+  for (; s < total; s += spacing) {
+    while (seg < lengths.length - 1 && s > segStart + lengths[seg]!) {
+      segStart += lengths[seg]!;
+      seg++;
+    }
+    const u = lengths[seg]! > 0 ? (s - segStart) / lengths[seg]! : 0;
+    const p0 = points[seg]!;
+    const p1 = points[seg + 1]!;
+    ctx.beginPath();
+    ctx.arc(p0.x + (p1.x - p0.x) * u, p0.y + (p1.y - p0.y) * u, opts.radius ?? 3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+export interface BarSpec {
+  label: string;
+  value: number;
+  color: string;
+}
+
+/**
+ * エネルギーなどの棒グラフ。(x, y, w, hgt) の枠の中に、ref を満杯として棒を並べる。
+ * 'vertical' は縦棒を横に並べ（ラベルは枠の下）、'horizontal' は横棒を縦に並べる（ラベルは枠の左）。
+ */
+export function drawBarChart(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  hgt: number,
+  bars: readonly BarSpec[],
+  ref: number,
+  opts: {
+    orientation: 'vertical' | 'horizontal';
+    track: string;
+    labelColor: string;
+    title?: string;
+  },
+): void {
+  if (!(ref > 0)) return;
+  const n = bars.length;
+  const ratio = (v: number) => Math.max(0, Math.min(v / ref, 1.05));
+  ctx.save();
+  if (opts.orientation === 'vertical') {
+    const slot = w / n;
+    const barW = Math.min(slot * 0.62, 22);
+    bars.forEach((b, i) => {
+      const bx = x + slot * i + (slot - barW) / 2;
+      ctx.fillStyle = opts.track;
+      ctx.fillRect(bx, y, barW, hgt);
+      ctx.fillStyle = b.color;
+      const bh = ratio(b.value) * hgt;
+      ctx.fillRect(bx, y + hgt - bh, barW, bh);
+      drawLabel(ctx, b.label, bx + barW / 2, y + hgt + 12, opts.labelColor, {
+        font: CANVAS_FONT_SMALL,
+      });
+    });
+    if (opts.title)
+      drawLabel(ctx, opts.title, x + w / 2, y - 10, opts.labelColor, { font: CANVAS_FONT_SMALL });
+  } else {
+    const slot = hgt / n;
+    const barH = Math.min(slot * 0.62, 16);
+    bars.forEach((b, i) => {
+      const by = y + slot * i + (slot - barH) / 2;
+      ctx.fillStyle = opts.track;
+      ctx.fillRect(x, by, w, barH);
+      ctx.fillStyle = b.color;
+      ctx.fillRect(x, by, ratio(b.value) * w, barH);
+      drawLabel(ctx, b.label, x - 6, by + barH / 2, opts.labelColor, {
+        font: CANVAS_FONT_SMALL,
+        align: 'right',
+      });
+    });
+    if (opts.title) {
+      drawLabel(ctx, opts.title, x, y - 8, opts.labelColor, {
+        font: CANVAS_FONT_SMALL,
+        align: 'left',
+      });
+    }
+  }
+  ctx.restore();
+}

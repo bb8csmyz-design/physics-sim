@@ -148,3 +148,57 @@ export function createToggle(
     },
   };
 }
+
+export interface ChoiceOption<V extends string> {
+  value: V;
+  label: string;
+}
+
+/**
+ * 択一の切り替え（スイッチの接続先など）。セグメント型のボタン列。
+ * onChange はユーザー操作で選択が変わったときだけ呼ぶ（value の代入では呼ばない）。
+ */
+export function createChoice<V extends string>(
+  label: string,
+  options: readonly ChoiceOption<V>[],
+  initial: V,
+  onChange: (value: V) => void,
+): { element: HTMLElement; get value(): V; set value(v: V) } {
+  let current = initial;
+  const buttons = options.map((o) =>
+    h(
+      'button',
+      {
+        type: 'button',
+        role: 'radio',
+        class: 'seg-btn choice-btn',
+        onclick: () => {
+          if (current === o.value) return;
+          select(o.value);
+          onChange(o.value);
+        },
+      },
+      o.label,
+    ),
+  );
+  function select(v: V) {
+    current = v;
+    options.forEach((o, i) => buttons[i]!.setAttribute('aria-checked', String(o.value === v)));
+  }
+  select(initial);
+  const labelId = `choice-${Math.random().toString(36).slice(2, 8)}`;
+  return {
+    element: h(
+      'div',
+      { class: 'choice' },
+      h('span', { class: 'slider-label', id: labelId }, label),
+      h('div', { class: 'seg', role: 'radiogroup', 'aria-labelledby': labelId }, buttons),
+    ),
+    get value() {
+      return current;
+    },
+    set value(v: V) {
+      select(v);
+    },
+  };
+}

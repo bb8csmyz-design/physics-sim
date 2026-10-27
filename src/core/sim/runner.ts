@@ -27,6 +27,11 @@ export interface RunnerOptions<S> {
   endTime?: number;
   /** 状態が物理的に破綻したら true を返す（NaN 検出など）。true なら一時停止する */
   isInvalid?: (state: S) => boolean;
+  /**
+   * 運動が終わったら true を返す（物体が壁に衝突した・画面外へ出たなど）。true なら一時停止し、
+   * 次に再生したときは t = 0 からやり直す（endTime と同じ扱い。警告は出さない）
+   */
+  isFinished?: (state: S) => boolean;
 }
 
 export type RunnerEvent = 'play' | 'pause' | 'reset' | 'speed';
@@ -74,6 +79,7 @@ export class SimulationRunner<S> {
   play(): void {
     if (this._playing) return;
     if (this.opts.endTime !== undefined && this._time >= this.opts.endTime) this.reset();
+    else if (this.opts.isFinished?.(this._state)) this.reset();
     this._playing = true;
     this.lastFrame = performance.now();
     this.emit('play');
@@ -153,6 +159,10 @@ export class SimulationRunner<S> {
       return false;
     }
     if (endTime !== undefined && this._time >= endTime - dt / 2) {
+      this.pause();
+      return false;
+    }
+    if (this.opts.isFinished?.(this._state)) {
       this.pause();
       return false;
     }
