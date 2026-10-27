@@ -148,3 +148,52 @@ export function createToggle(
     },
   };
 }
+
+export interface ChoiceOption<V extends string> {
+  value: V;
+  label: string;
+}
+
+/**
+ * 択一の切り替え（「弦 / 開管 / 閉管」「凸レンズ / 凹レンズ」など、スライダーで表せない条件）。
+ * パラメータパネルの上に置く。値が変わったら onChange を呼ぶ。
+ */
+export function createChoice<V extends string>(
+  label: string,
+  options: readonly ChoiceOption<V>[],
+  initial: V,
+  onChange: (value: V) => void,
+): { readonly element: HTMLElement; readonly value: V } {
+  let value = initial;
+  const buttons = options.map((o) =>
+    h(
+      'button',
+      {
+        type: 'button',
+        role: 'radio',
+        class: 'seg-btn',
+        'aria-checked': String(o.value === initial),
+        onclick: () => select(o.value),
+      },
+      o.label,
+    ),
+  );
+  function select(v: V) {
+    if (v === value) return;
+    value = v;
+    options.forEach((o, i) => buttons[i]!.setAttribute('aria-checked', String(o.value === v)));
+    onChange(v);
+  }
+  const element = h(
+    'div',
+    { class: 'choice' },
+    h('span', { class: 'slider-label' }, label),
+    h('div', { class: 'seg', role: 'radiogroup', 'aria-label': label }, buttons),
+  );
+  return {
+    element,
+    get value() {
+      return value;
+    },
+  };
+}

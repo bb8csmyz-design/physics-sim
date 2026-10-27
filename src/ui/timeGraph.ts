@@ -18,8 +18,8 @@ export interface SeriesSpec {
   label: string;
   /** 色を物理量で指定（推奨。全単元で色をそろえるため） */
   quantity?: Quantity;
-  /** quantity で表せない場合の CSS 色 */
-  color?: string;
+  /** quantity で表せない参照用の線（「S₁ からの波」など）は、パレットの文字色・補助色を使う */
+  tone?: 'fg' | 'muted';
   dashed?: boolean;
 }
 
@@ -72,7 +72,7 @@ export function createTimeGraph(opts: TimeGraphOptions, disposer: Disposer): Tim
   );
 
   function seriesColor(s: SeriesSpec, p: Palette): string {
-    return s.quantity ? p.quantity[s.quantity] : (s.color ?? p.fg);
+    return s.quantity ? p.quantity[s.quantity] : s.tone === 'muted' ? p.muted : p.fg;
   }
 
   function yBounds(): [number, number] {

@@ -98,6 +98,8 @@ export interface Palette {
   bodyStroke: string;
   /** 壁・床などの固定物 */
   fixture: string;
+  /** 光を映すスクリーン（暗い幕） */
+  screen: string;
   quantity: Record<Quantity, string>;
 }
 
@@ -121,6 +123,7 @@ export function getPalette(): Palette {
     body: cssVar(s, '--sim-body'),
     bodyStroke: cssVar(s, '--sim-body-stroke'),
     fixture: cssVar(s, '--sim-fixture'),
+    screen: cssVar(s, '--sim-screen'),
     quantity,
   };
   return cachedPalette;

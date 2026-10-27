@@ -104,14 +104,34 @@ export function createPlaybackControls<S>(
   );
 }
 
-/** 「t = 1.23 s」の時刻表示。render のたびに update(t) を呼ぶ */
-export function createTimeReadout(digits = 2): { element: HTMLElement; update(t: number): void } {
+/**
+ * 「t = 1.23 s」の時刻表示。render のたびに update(t) を呼ぶ。
+ * - unit: 時刻の単位。光の波のように周期 T を単位にするときは 'T'
+ * - note: 補足（「1/50 倍のスロー再生」など、実時間と進み方が違うことを示す）。setNote で変えられる
+ */
+export function createTimeReadout(
+  digits = 2,
+  opts: { unit?: 's' | 'T'; note?: string } = {},
+): { element: HTMLElement; update(t: number): void; setNote(note: string): void } {
   const value = h('span', { class: 'num' });
-  const element = h('div', { class: 'time-readout' }, h('var', null, 't'), ' = ', value, ' s');
+  const note = h('span', { class: 'time-note' }, opts.note ?? '');
+  const element = h(
+    'div',
+    { class: 'time-readout' },
+    h('var', null, 't'),
+    ' = ',
+    value,
+    ' ',
+    opts.unit === 'T' ? h('var', null, 'T') : 's',
+    note,
+  );
   return {
     element,
     update(t) {
       value.textContent = formatFixed(t, digits);
+    },
+    setNote(text) {
+      note.textContent = text;
     },
   };
 }

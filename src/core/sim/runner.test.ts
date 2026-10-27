@@ -49,6 +49,17 @@ describe('SimulationRunner', () => {
     expect(runner.time).toBeCloseTo(1, 6);
   });
 
+  it('setTimeScale で再生中にシミュレーション時間の進み方を変えられる', () => {
+    const { runner } = makeRunner();
+    runner.play();
+    for (let i = 0; i < 25; i++) tick(20); // 0.5 秒（等倍）
+    runner.setTimeScale(0.1);
+    for (let i = 0; i < 50; i++) tick(20); // 1 秒（×0.1）
+    expect(runner.timeScale).toBe(0.1);
+    expect(runner.time).toBeCloseTo(0.6, 6);
+    expect(() => runner.setTimeScale(0)).toThrow(RangeError);
+  });
+
   it('一時停止中は進まず、リセットで初期状態に戻る', () => {
     const { runner } = makeRunner();
     runner.play();
