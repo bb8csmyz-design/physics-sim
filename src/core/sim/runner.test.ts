@@ -51,6 +51,17 @@ describe('SimulationRunner', () => {
     expect(runner.time).toBeCloseTo(1, 6);
   });
 
+  it('setTimeScale で再生中にシミュレーション時間の進み方を変えられる', () => {
+    const { runner } = makeRunner();
+    runner.play();
+    for (let i = 0; i < 25; i++) tick(20); // 0.5 秒（等倍）
+    runner.setTimeScale(0.1);
+    for (let i = 0; i < 50; i++) tick(20); // 1 秒（×0.1）
+    expect(runner.timeScale).toBe(0.1);
+    expect(runner.time).toBeCloseTo(0.6, 6);
+    expect(() => runner.setTimeScale(0)).toThrow(RangeError);
+  });
+
   it('一時停止中は進まず、リセットで初期状態に戻る', () => {
     const { runner } = makeRunner();
     runner.play();
@@ -87,6 +98,18 @@ describe('SimulationRunner', () => {
     expect(runner.playing).toBe(false);
     expect(runner.state).toBeCloseTo(1, 6);
     expect(runner.time).toBeCloseTo(0.5, 6);
+    runner.play();
+    expect(runner.time).toBe(0);
+    expect(runner.playing).toBe(true);
+  });
+
+  it('isFinished が true になったらその時刻で止まり、次の再生は t = 0 から', () => {
+    const { runner } = makeRunner({ isFinished: (x) => x >= 0.6 });
+    runner.play();
+    for (let i = 0; i < 100; i++) tick(20);
+    expect(runner.playing).toBe(false);
+    expect(runner.time).toBeCloseTo(0.3, 6);
+    expect(runner.state).toBeCloseTo(0.6, 6);
     runner.play();
     expect(runner.time).toBe(0);
     expect(runner.playing).toBe(true);

@@ -18,8 +18,8 @@ export interface SeriesSpec {
   label: string;
   /** 色を物理量で指定（推奨。全単元で色をそろえるため） */
   quantity?: Quantity;
-  /** quantity で表せない場合の CSS 色 */
-  color?: string;
+  /** quantity で表せない参照用の線（「S₁ からの波」など）は、パレットの文字色・補助色を使う */
+  tone?: 'fg' | 'muted';
   dashed?: boolean;
   /** 点線（実線・破線に加えて 3 本目を区別したいとき） */
   dotted?: boolean;
@@ -44,6 +44,8 @@ export interface TimeGraphOptions {
   symmetric?: boolean;
   ariaLabel: string;
   aspect?: number;
+  /** 横軸の単位。'ms' なら目盛りをミリ秒で表示する（push する t と window は秒のまま） */
+  timeUnit?: 's' | 'ms';
 }
 
 export interface TimeGraph {
@@ -81,7 +83,7 @@ export function createTimeGraph(opts: TimeGraphOptions, disposer: Disposer): Tim
   );
 
   function seriesColor(s: SeriesSpec, p: Palette): string {
-    return s.quantity ? p.quantity[s.quantity] : (s.color ?? p.fg);
+    return s.quantity ? p.quantity[s.quantity] : s.tone === 'muted' ? p.muted : p.fg;
   }
 
   function yBounds(): [number, number] {
@@ -128,11 +130,13 @@ export function createTimeGraph(opts: TimeGraphOptions, disposer: Disposer): Tim
       ctx.fillStyle = p.muted;
       ctx.fillText(formatFixed(v, tickDigits(yStep)), x0 - 6, y);
     }
-    // 横軸の目盛りとグリッド
-    const tStep = niceStep(windowSec, 5);
+    // 横軸の目盛りとグリッド（表示単位で「きりのよい」値にする）
+    const tFactor = opts.timeUnit === 'ms' ? 1000 : 1;
+    const tStep = niceStep(windowSec * tFactor, 5);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
-    for (const t of niceTicks(tMin, tMax, 5)) {
+    for (const tu of niceTicks(tMin * tFactor, tMax * tFactor, 5)) {
+      const t = tu / tFactor;
       const x = px(t);
       ctx.strokeStyle = p.grid;
       ctx.beginPath();
@@ -140,7 +144,7 @@ export function createTimeGraph(opts: TimeGraphOptions, disposer: Disposer): Tim
       ctx.lineTo(x, y1);
       ctx.stroke();
       ctx.fillStyle = p.muted;
-      ctx.fillText(formatFixed(t, tickDigits(tStep)), x, y1 + 6);
+      ctx.fillText(formatFixed(tu, tickDigits(tStep)), x, y1 + 6);
     }
     // 枠
     ctx.strokeStyle = p.axis;
@@ -153,7 +157,7 @@ export function createTimeGraph(opts: TimeGraphOptions, disposer: Disposer): Tim
     ctx.fillText(opts.yLabel, 6, y0 - 10);
     ctx.textAlign = 'right';
     ctx.textBaseline = 'bottom';
-    ctx.fillText('t [s]', x1, size.height - 2);
+    ctx.fillText(opts.timeUnit === 'ms' ? 't [ms]' : 't [s]', x1, size.height - 2);
 
     // データ
     ctx.save();
