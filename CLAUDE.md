@@ -39,6 +39,7 @@ src/
     physics/
       integrators.ts      数値積分（Euler, 中点法, RK4, シンプレクティック Euler, 速度ベルレ, 吉田4次）
       analysis.ts         検証用（相対誤差・収束次数・周期推定）
+      special.ts          特殊関数（完全楕円積分。単振り子の厳密な周期など）
       constants.ts        物理定数（g = 9.8）
   ui/                     共通 UI 部品（全単元で使う）
     layout.ts             mountSimulationLayout()  単元ページの標準レイアウト
@@ -49,7 +50,8 @@ src/
     math.ts               tex() / richText()
     theory.ts             theory() / section() / p() / eq() / ul() / note() / question()
     canvas.ts             createResponsiveCanvas() / fitViewport()
-    draw.ts               drawArrow / drawSpring / drawBlock / drawBall / drawFixture / drawLabel ...
+    draw.ts               drawArrow / drawVector / drawSpring / drawBlock / drawBall / drawFixture /
+                          drawPath / drawEnergyBars / drawScaleBar / drawLabel ...
   pages/                  トップページ・単元ページの枠
   styles/                 tokens.css（色・余白）, base.css, components.css
   units/
@@ -90,6 +92,7 @@ src/
 3. `createTimeGraph` × n → `createGraphTabs`
 4. `createValuePanel`（現在値）＋必要なら「この条件での値」（周期など定数）
 5. `new SimulationRunner({ dt: DT, init, step, onStep: グラフ記録, onReset: グラフ消去, render, isInvalid })`
+   （着地・落下などで運動が終わる単元は `isFinished` で自動停止させる）
 6. `disposer.add(() => runner.destroy())`
 7. `mountSimulationLayout(root, { stage, playback, status, params, options, values, graphs, theory })`
 
@@ -138,7 +141,7 @@ src/
 - **色**: 色は `styles/tokens.css` の CSS 変数と `getPalette()` 経由でのみ指定する（直書き禁止）。ダークモードで
   必ず確認する。**物理量の色は全単元共通**（`--q-*` / `QUANTITY_COLORS`）:
   位置 = 青, 速度 = 橙, 加速度 = 緑, 力 = 赤, 運動エネルギー = 黄, 位置エネルギー = 紫, 力学的エネルギー = 灰,
-  電場 = ピンク, 磁場 = 青緑, 電流 = 黄土, 熱 = ローズ。グラフ・矢印・値パネルの色見本で同じ色を使う。
+  電場 = ピンク, 磁場 = 青緑, 電流 = 黄土, 熱 = ローズ, 運動量 = 茶。グラフ・矢印・値パネルの色見本で同じ色を使う。
   新しい物理量の色が必要なら `tokens.css`（ライト・ダーク両方）と `theme.ts` の両方に追加する。
 - **矢印（ベクトル）**: 速度・力などは `drawArrow` で物理量の色を使い、記号のラベル（`v`, `F`）を付ける。
   長さはパラメータ範囲で画面からはみ出さないよう規格化する。

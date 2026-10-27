@@ -25,6 +25,8 @@ export interface RunnerOptions<S> {
   timeScale?: number;
   /** この時刻に達したら自動で一時停止する（任意） */
   endTime?: number;
+  /** 状態が終了条件（着地・落下など）を満たしたら true を返す。true なら一時停止する（任意） */
+  isFinished?: (state: S) => boolean;
   /** 状態が物理的に破綻したら true を返す（NaN 検出など）。true なら一時停止する */
   isInvalid?: (state: S) => boolean;
 }
@@ -73,7 +75,7 @@ export class SimulationRunner<S> {
 
   play(): void {
     if (this._playing) return;
-    if (this.opts.endTime !== undefined && this._time >= this.opts.endTime) this.reset();
+    if (this.finished()) this.reset();
     this._playing = true;
     this.lastFrame = performance.now();
     this.emit('play');
@@ -143,7 +145,7 @@ export class SimulationRunner<S> {
 
   /** 1 ステップ進める。破綻・終了で停止したら false */
   private stepOnce(): boolean {
-    const { dt, endTime } = this.opts;
+    const { dt } = this.opts;
     this._state = this.opts.step(this._state, this._time, dt);
     this._time += dt;
     this.opts.onStep?.(this._state, this._time);
@@ -152,11 +154,20 @@ export class SimulationRunner<S> {
       this.pause();
       return false;
     }
-    if (endTime !== undefined && this._time >= endTime - dt / 2) {
+    if (this.finished()) {
       this.pause();
       return false;
     }
     return true;
+  }
+
+  /** 終了時刻・終了条件に達しているか（達していれば再生ボタンで最初から再生する） */
+  private finished(): boolean {
+    const { endTime, isFinished } = this.opts;
+    return (
+      (endTime !== undefined && this._time >= endTime - this.opts.dt / 2) ||
+      (isFinished?.(this._state) ?? false)
+    );
   }
 
   private readonly frame = (now: number): void => {

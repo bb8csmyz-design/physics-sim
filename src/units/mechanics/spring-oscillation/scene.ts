@@ -12,6 +12,7 @@ import {
   drawBall,
   drawBlock,
   drawDashedLine,
+  drawEnergyBars,
   drawFixture,
   drawLabel,
   drawSpring,
@@ -172,7 +173,7 @@ export function drawScene(
     });
   }
 
-  drawEnergyBars(ctx, size, pal, p, s);
+  drawEnergy(ctx, size, pal, p, s);
 }
 
 function energyBarsHeight(size: CanvasSize): number {
@@ -180,7 +181,7 @@ function energyBarsHeight(size: CanvasSize): number {
 }
 
 /** 右上のエネルギー棒グラフ（K と U のやりとり、E は一定） */
-function drawEnergyBars(
+function drawEnergy(
   ctx: CanvasRenderingContext2D,
   size: CanvasSize,
   pal: Palette,
@@ -188,25 +189,17 @@ function drawEnergyBars(
   s: SpringState,
 ): void {
   const e = energies(p, s);
-  const E0 = 0.5 * p.k * amplitude(p) ** 2;
-  if (E0 <= 0) return;
-  const barW = 14;
-  const gap = 8;
-  const maxH = energyBarsHeight(size);
-  const right = size.width - 14;
-  const bottom = 10 + maxH;
-  const bars = [
-    { label: 'K', value: e.kinetic, color: pal.quantity.kinetic },
-    { label: 'U', value: e.potential, color: pal.quantity.potential },
-    { label: 'E', value: e.total, color: pal.quantity.energy },
-  ];
-  bars.forEach((b, i) => {
-    const x = right - (bars.length - i) * (barW + gap) + gap;
-    const hgt = (Math.min(b.value, E0 * 1.05) / E0) * maxH;
-    ctx.fillStyle = pal.grid;
-    ctx.fillRect(x, bottom - maxH, barW, maxH);
-    ctx.fillStyle = b.color;
-    ctx.fillRect(x, bottom - hgt, barW, hgt);
-    drawLabel(ctx, b.label, x + barW / 2, bottom + 11, pal.fg, { font: CANVAS_FONT_MATH });
-  });
+  drawEnergyBars(
+    ctx,
+    size.width - 14,
+    10,
+    energyBarsHeight(size),
+    [
+      { label: 'K', value: e.kinetic, color: pal.quantity.kinetic },
+      { label: 'U', value: e.potential, color: pal.quantity.potential },
+      { label: 'E', value: e.total, color: pal.quantity.energy },
+    ],
+    0.5 * p.k * amplitude(p) ** 2,
+    pal,
+  );
 }

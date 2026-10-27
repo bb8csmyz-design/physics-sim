@@ -20,7 +20,9 @@ function tick(ms: number) {
 }
 
 /** 等速運動 x = v t（状態は x のみ） */
-function makeRunner(opts: { endTime?: number; timeScale?: number } = {}) {
+function makeRunner(
+  opts: { endTime?: number; timeScale?: number; isFinished?: (x: number) => boolean } = {},
+) {
   const render = vi.fn();
   const runner = new SimulationRunner<number>({
     dt: 0.01,
@@ -76,6 +78,18 @@ describe('SimulationRunner', () => {
     for (let i = 0; i < 100; i++) tick(20);
     expect(runner.playing).toBe(false);
     expect(runner.time).toBeCloseTo(0.5, 6);
+  });
+
+  it('isFinished が true になったら自動で止まり、再生し直すと最初から始まる', () => {
+    const { runner } = makeRunner({ isFinished: (x) => x >= 1 });
+    runner.play();
+    for (let i = 0; i < 100; i++) tick(20);
+    expect(runner.playing).toBe(false);
+    expect(runner.state).toBeCloseTo(1, 6);
+    expect(runner.time).toBeCloseTo(0.5, 6);
+    runner.play();
+    expect(runner.time).toBe(0);
+    expect(runner.playing).toBe(true);
   });
 
   it('タブが長時間非表示だった後でも一度に進む時間は上限で抑えられる', () => {

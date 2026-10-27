@@ -21,6 +21,15 @@ export interface SeriesSpec {
   /** quantity で表せない場合の CSS 色 */
   color?: string;
   dashed?: boolean;
+  /** 点線（実線・破線に加えて 3 本目を区別したいとき） */
+  dotted?: boolean;
+}
+
+/** 線種に応じた setLineDash の引数（凡例用は短め） */
+function dashPattern(s: SeriesSpec, legend = false): number[] {
+  if (s.dotted) return legend ? [1.5, 3] : [2, 4];
+  if (s.dashed) return legend ? [4, 3] : [6, 4];
+  return [];
 }
 
 export interface TimeGraphOptions {
@@ -157,7 +166,7 @@ export function createTimeGraph(opts: TimeGraphOptions, disposer: Disposer): Tim
       const data = ys[i]!;
       const color = seriesColor(s, p);
       ctx.strokeStyle = color;
-      ctx.setLineDash(s.dashed ? [6, 4] : []);
+      ctx.setLineDash(dashPattern(s));
       ctx.beginPath();
       let started = false;
       for (let j = 0; j < ts.length; j++) {
@@ -193,7 +202,7 @@ export function createTimeGraph(opts: TimeGraphOptions, disposer: Disposer): Tim
       lx -= 22;
       ctx.strokeStyle = seriesColor(s, p);
       ctx.lineWidth = 2.5;
-      ctx.setLineDash(s.dashed ? [4, 3] : []);
+      ctx.setLineDash(dashPattern(s, true));
       ctx.beginPath();
       ctx.moveTo(lx, ly);
       ctx.lineTo(lx + 16, ly);
