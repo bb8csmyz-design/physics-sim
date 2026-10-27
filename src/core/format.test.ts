@@ -16,6 +16,14 @@ describe('format', () => {
     expect(formatSig(0)).toBe('0');
   });
 
+  it('formatSig: 丸めで桁が上がっても有効数字の桁数を保つ', () => {
+    expect(formatSig(9.996)).toBe('10.0');
+    expect(formatSig(-99.96)).toBe('−100');
+    expect(formatSig(0.0009996)).toBe('0.00100');
+    expect(formatSig(99999.6)).toBe('1.00×10⁵');
+    expect(formatSig(9.9996e-5)).toBe('1.00×10⁻⁴');
+  });
+
   it('digitsForStep', () => {
     expect(digitsForStep(1)).toBe(0);
     expect(digitsForStep(0.5)).toBe(1);

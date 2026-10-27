@@ -113,8 +113,10 @@ ${askSpeed ? '小球が地面に達する直前の速さ $v$ [m/s]' : '投げ出
     id: 'terminal-speed',
     title: '空気抵抗と終端速度',
     generate(rng) {
-      const m = pickStep(rng, 0.1, 1, 0.1);
-      const k = pickStep(rng, 0.1, 1, 0.02);
+      // 答え合わせの条件（高さ 30 m から落とす）で終端速度にほぼ達するよう、時定数 τ = m/k を 1.2 s 以下にする
+      // （3τ で終端速度の 95% に達し、それまでに落ちる距離は約 2gτ² ≤ 29 m）
+      const k = pickStep(rng, 0.2, 1, 0.02);
+      const m = pickStep(rng, 0.1, Math.max(0.1, Math.floor(k * 12 + 1e-9) / 10), 0.1);
       const p: ProjectileParams = { v0: 0, theta: 90, h0: 30, k, m };
       const vT = terminalSpeed(p);
       const half = m / 2;

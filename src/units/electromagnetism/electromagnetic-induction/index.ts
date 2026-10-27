@@ -88,7 +88,7 @@ const unit: UnitModule = {
         series: [
           { label: '運動エネルギー K', quantity: 'kinetic' },
           { label: 'ジュール熱 Q', quantity: 'heat' },
-          { label: '外力の仕事 W', quantity: 'energy', dashed: true },
+          { label: '外力の仕事 W', quantity: 'work', dashed: true },
         ],
         ariaLabel: '運動エネルギーの増加・ジュール熱・外力がした仕事の時間変化',
       },
@@ -125,7 +125,7 @@ const unit: UnitModule = {
         symbol: 'W',
         unit: 'J',
         digits: 3,
-        quantity: 'energy',
+        quantity: 'work',
       },
     ]);
     const constants = createValuePanel([

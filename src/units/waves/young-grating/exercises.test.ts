@@ -7,6 +7,7 @@ import { checkExercises, numericAnswer, sampleExercises } from '@/units/exercise
 import { EXERCISES } from './exercises';
 import {
   GRATING_PARAMS,
+  PRESET_CHOICES,
   YOUNG_PARAMS,
   gratingConfig,
   superposedIntensity,
@@ -15,8 +16,10 @@ import {
   type YoungParams,
 } from './model';
 
-checkExercises(EXERCISES, (ex) =>
-  ex.sim.choices!.mode === 'grating' ? GRATING_PARAMS : YOUNG_PARAMS,
+checkExercises(
+  EXERCISES,
+  (ex) => (ex.sim.choices!.mode === 'grating' ? GRATING_PARAMS : YOUNG_PARAMS),
+  PRESET_CHOICES,
 );
 
 const template = (id: string) => EXERCISES.find((t) => t.id === id)!;

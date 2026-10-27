@@ -2,7 +2,7 @@
  * 弦と気柱の固有振動の演習問題。正解は model.ts の frequency で求める。
  * 答え合わせは「振動するもの」（choices.kind）とスライダーで指定する。
  */
-import { num, numeric, pickStep, sig, type ExerciseTemplate } from '@/core/exercise';
+import { num, numeric, pickStep, roundTo, sig, type ExerciseTemplate } from '@/core/exercise';
 import { frequency, type ResonatorKind, type ResonatorParams } from './model';
 
 const sim = (kind: ResonatorKind, p: ResonatorParams, hint: string) => ({
@@ -132,7 +132,7 @@ export const EXERCISES: readonly ExerciseTemplate[] = [
         sim: sim(
           'closed',
           p,
-          `1 回目の共鳴（閉管の基本振動）の条件にしてある。「この条件での値」の固有振動数がおんさの振動数と一致することを確かめよう。長さを $${num(L2)}$ m、振動の番号を 2（3 倍振動）にしても同じ振動数になる。`,
+          `1 回目の共鳴（閉管の基本振動）の条件にしてある。「この条件での値」の固有振動数がおんさの振動数と一致することを確かめよう。長さを 2 回目の共鳴の $${num(L2)}$ m に最も近い $${num(roundTo(L2, 0.01))}$ m（スライダーの刻み）、振動の番号を 2（3 倍振動）にすると、ほぼ同じ振動数になる。`,
         ),
         given: { L2, f: fText },
       };

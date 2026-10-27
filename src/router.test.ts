@@ -34,6 +34,11 @@ describe('parseHash', () => {
     expect(parseHash('#/foo').name).toBe('notFound');
     expect(parseHash('#/a/b/c').name).toBe('notFound');
   });
+
+  it('壊れたパーセントエンコードでも例外を投げず notFound', () => {
+    expect(() => parseHash('#/mechanics/%E0%A4%A')).not.toThrow();
+    expect(parseHash('#/mechanics/%E0%A4%A').name).toBe('notFound');
+  });
 });
 
 describe('単元の初期条件のクエリ', () => {

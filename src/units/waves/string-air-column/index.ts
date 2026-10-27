@@ -28,6 +28,7 @@ import {
   type ResonatorKind,
   type ResonatorParams,
   type ResonatorState,
+  PRESET_CHOICES,
 } from './model';
 import { drawScene, type SceneOptions } from './scene';
 import { buildTheory } from './theory';
@@ -52,7 +53,7 @@ const unit: UnitModule = {
         { value: 'open', label: '開管' },
         { value: 'closed', label: '閉管' },
       ],
-      presetChoice(preset?.choices, 'kind', ['string', 'open', 'closed'], 'closed'),
+      presetChoice(preset?.choices, 'kind', PRESET_CHOICES.kind, 'closed'),
       () => {
         applyParams();
         runner.reset();

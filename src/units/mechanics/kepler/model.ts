@@ -57,7 +57,7 @@ export const GM = G_ACCEL * EARTH_RADIUS * EARTH_RADIUS;
  */
 export const DT = 1;
 
-/** 脱出する軌道で、打ち出した位置の何倍まで離れたら終えるか */
+/** 脱出する軌道（力学的エネルギー ≥ 0）で、打ち出した位置の何倍まで離れたら終えるか */
 const ESCAPE_FACTOR = 5;
 
 export interface KeplerState {
@@ -124,8 +124,18 @@ export function step(p: KeplerParams, s: KeplerState, dt: number): KeplerState {
     }
     return { ...advance(s, hi), crashed: true };
   }
-  if (distance(next) > ESCAPE_FACTOR * launchRadius(p)) return { ...next, escaped: true };
+  // 遠地点が遠い楕円軌道（力学的エネルギー < 0）は戻ってくるので止めない。ちょうど脱出速度で
+  // 打ち出した放物線軌道（ε = 0）を丸め誤差で楕円と取り違えないよう、|ε| の小さな負の値は脱出とみなす
+  const r0 = launchRadius(p);
+  if (distance(next) > ESCAPE_FACTOR * r0 && specificEnergyOf(next) >= (-1e-6 * GM) / r0) {
+    return { ...next, escaped: true };
+  }
   return next;
+}
+
+/** 状態から求めた単位質量あたりの力学的エネルギー v²/2 − GM/r [J/kg] */
+function specificEnergyOf(s: KeplerState): number {
+  return 0.5 * (s.vx * s.vx + s.vy * s.vy) - GM / distance(s);
 }
 
 /** 円軌道の速さ √(GM/r₀) [m/s]（r₀ = R で第一宇宙速度 √(gR) ≈ 7.9 km/s） */

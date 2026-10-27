@@ -19,6 +19,14 @@ export type ResonatorParamKey = 'L' | 'v' | 'n' | 'dx' | 'xr';
 export type ResonatorParams = ParamValues<ResonatorParamKey>;
 
 export const KINDS: readonly ResonatorKind[] = ['string', 'open', 'closed'];
+/**
+ * 答え合わせ・URL で指定できる択一の切り替え（ctx.preset.choices のキーと選べる値）。
+ * index.ts の presetChoice() と、演習問題のテスト（checkExercises）の両方がこれを使う。
+ */
+export const PRESET_CHOICES = { kind: ['string', 'open', 'closed'] } as const satisfies Record<
+  string,
+  readonly ResonatorKind[]
+>;
 
 export const PARAMS: readonly ParamSpec<ResonatorParamKey>[] = [
   {

@@ -27,6 +27,7 @@ import {
   type InterferenceParams,
   type InterferenceState,
   type SourcePhase,
+  PRESET_CHOICES,
 } from './model';
 import { drawScene, type SceneOptions } from './scene';
 import { buildTheory } from './theory';
@@ -56,7 +57,7 @@ const unit: UnitModule = {
         { value: 'same', label: '同位相' },
         { value: 'opposite', label: '逆位相' },
       ],
-      presetChoice(preset?.choices, 'phase', ['same', 'opposite'], 'same'),
+      presetChoice(preset?.choices, 'phase', PRESET_CHOICES.phase, 'same'),
       () => {
         applyParams();
         runner.reset();

@@ -278,7 +278,8 @@ export function formatAnswerValue(answer: NumericAnswer): string {
   if (answer.integer) return v < 0 ? `−${-v}` : String(v);
   const sig = answer.sig ?? 2;
   if (v === 0) return '0';
-  const abs = Math.abs(v);
+  // 先に有効数字 sig 桁に丸めてから桁数を決める（0.996 → '1.0'。'1.00' にしない）
+  const abs = Math.abs(Number(v.toPrecision(sig)));
   const exp = Math.floor(Math.log10(abs));
   if (abs >= 1e-3 && abs < 1e5) {
     const digits = Math.max(0, sig - 1 - exp);

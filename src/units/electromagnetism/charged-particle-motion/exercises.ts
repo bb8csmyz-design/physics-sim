@@ -14,14 +14,23 @@ import {
 import type { Rng } from '@/core/random';
 import { omega, period, radius, type ParticleParams } from './model';
 
+/**
+ * 磁場中の円運動の条件。答え合わせで 1 周を見届けられるよう、周期 2πm/(qB) が 13 s 以下
+ * （m/(qB) ≤ 2 g/(mC·T)）になる組み合わせを選ぶ。このとき半径 ≤ 2 × 2 = 4 m で、円が画面に収まる。
+ */
+export const MAX_M_OVER_QB = 2;
 function pickMagnetic(rng: Rng): ParticleParams {
-  return {
-    m: pickStep(rng, 1, 10, 0.5),
-    q: pickStep(rng, 0.5, 4, 0.5),
-    B: pickStep(rng, 0.5, 2, 0.1),
-    E: 0,
-    v0: pickStep(rng, 0.5, 2, 0.1),
-  };
+  let p: ParticleParams;
+  do {
+    p = {
+      m: pickStep(rng, 1, 10, 0.5),
+      q: pickStep(rng, 0.5, 4, 0.5),
+      B: pickStep(rng, 0.5, 2, 0.1),
+      E: 0,
+      v0: pickStep(rng, 0.5, 2, 0.1),
+    };
+  } while (p.m / (p.q * p.B) > MAX_M_OVER_QB);
+  return p;
 }
 
 const B_DIR = (B: number) => (B > 0 ? '紙面の裏から表へ向かう向き' : '紙面の表から裏へ向かう向き');

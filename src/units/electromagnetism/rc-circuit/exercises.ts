@@ -103,7 +103,7 @@ export const EXERCISES: readonly ExerciseTemplate[] = [
         solution: [
           `充電後の電気量は $Q = CE$。電池がした仕事は $W = QE = CE^2$。`,
           `コンデンサーに蓄えられた静電エネルギーは $U = \\frac{1}{2}CE^2$。エネルギー保存より、残りがジュール熱になる:`,
-          `$$J = CE^2 - \\frac{1}{2}CE^2 = \\frac{1}{2}CE^2 = \\frac{1}{2} \\times ${num(p.C)} \\times 10^{-6} \\times ${num(p.E)}^2 \\approx ${sig(Q)} \\times 10^{-3}\\ \\text{J}$$`,
+          `$$W - U = CE^2 - \\frac{1}{2}CE^2 = \\frac{1}{2}CE^2 = \\frac{1}{2} \\times ${num(p.C)} \\times 10^{-6} \\times ${num(p.E)}^2 \\approx ${sig(Q)} \\times 10^{-3}\\ \\text{J}$$`,
           '抵抗値によらず、電池の仕事のちょうど半分が熱になる（抵抗値は充電の速さだけを変える）。',
         ],
         sim: sim(

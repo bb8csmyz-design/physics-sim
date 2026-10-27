@@ -83,6 +83,16 @@ describe('SimulationRunner', () => {
     expect(runner.playing).toBe(false);
   });
 
+  it('運動が終わった後の advance は、終わった状態を通り過ぎず t = 0 からコマ送りする', () => {
+    const { runner } = makeRunner({ isFinished: (x) => x >= 0.6 });
+    runner.advance(1);
+    expect(runner.time).toBeCloseTo(0.3, 6); // 終わった時刻で止まる
+    runner.advance(0.1);
+    expect(runner.time).toBeCloseTo(0.1, 6);
+    expect(runner.state).toBeCloseTo(0.2, 6);
+    expect(runner.playing).toBe(false);
+  });
+
   it('endTime に達したら自動で止まる', () => {
     const { runner } = makeRunner({ endTime: 0.5 });
     runner.play();

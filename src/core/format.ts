@@ -19,6 +19,8 @@ export function formatFixed(value: number, digits: number): string {
 export function formatSig(value: number, sig = 3): string {
   if (!Number.isFinite(value)) return '—';
   if (value === 0) return '0';
+  // 先に有効数字 sig 桁に丸めてから桁数を決める（9.996 → '10.0'（3 桁）、'10.00' にしない）
+  value = Number(value.toPrecision(sig));
   const abs = Math.abs(value);
   if (abs >= 1e-3 && abs < 1e5) {
     const digits = Math.max(0, sig - 1 - Math.floor(Math.log10(abs)));

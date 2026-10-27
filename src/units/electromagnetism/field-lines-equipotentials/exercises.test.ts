@@ -13,6 +13,19 @@ checkExercises(EXERCISES, PARAMS);
 const template = (id: string) => EXERCISES.find((t) => t.id === id)!;
 const value = numericAnswer;
 
+describe('問題の条件', () => {
+  it('2 つの点電荷はどちらも 0 でない（「+0 nC の点電荷」を出題しない）', () => {
+    for (const t of EXERCISES) {
+      for (const ex of sampleExercises(t, 500)) {
+        const p = ex.sim.params as FieldParams;
+        expect(p.QA, ex.statement).not.toBe(0);
+        expect(p.QB, ex.statement).not.toBe(0);
+        expect(ex.statement).not.toMatch(/[+-]0 nC/);
+      }
+    }
+  });
+});
+
 describe('正解が独立な計算と一致する', () => {
   it('中点の電場の強さ = 電位の傾き（中心差分、刻み 1e-5 m。誤差は 1e-9 程度）', () => {
     for (const ex of sampleExercises(template('midpoint-field'))) {

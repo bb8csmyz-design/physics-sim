@@ -5,12 +5,17 @@ import { num, numeric, pickStep, sig, snapZero, type ExerciseTemplate } from '@/
 import type { Rng } from '@/core/random';
 import { afterCollision, energyLoss, impulseOnA, type CollisionParams } from './model';
 
-/** A が B に追いついて衝突する条件（vA > vB）を選ぶ */
+/**
+ * A が B に追いついて衝突する条件（vA > vB）を選ぶ。B が右向きに進むときは、衝突する前に B が床の
+ * 表示範囲の外に出ない（シミュレーションが止まらない）よう、vB を vA の 0.45 倍以下にする
+ * （衝突までの時間 ≤ 2.4/(vA − vB) の間に B が進む距離 ≤ 2.4 × 0.45/0.55 ≈ 2.0 m < 3.5 − 1.2 m）。
+ */
 function pickCollision(rng: Rng, e: number): CollisionParams {
   const mA = pickStep(rng, 0.5, 4, 0.5);
   const mB = pickStep(rng, 0.5, 4, 0.5);
   const vA = pickStep(rng, 1, 5, 0.5);
-  const vB = rng.uniform() < 0.5 ? 0 : pickStep(rng, -3, Math.min(vA - 1, 2), 0.5);
+  const vBMax = Math.min(vA - 1, 2, Math.floor(0.45 * vA * 2) / 2);
+  const vB = rng.uniform() < 0.5 ? 0 : pickStep(rng, -3, vBMax, 0.5);
   return { mA, mB, vA, vB, e };
 }
 

@@ -12,9 +12,10 @@ import {
   displacements,
   type InterferenceParams,
   type SourcePhase,
+  PRESET_CHOICES,
 } from './model';
 
-checkExercises(EXERCISES, PARAMS);
+checkExercises(EXERCISES, PARAMS, PRESET_CHOICES);
 
 const template = (id: string) => EXERCISES.find((t) => t.id === id)!;
 const value = numericAnswer;

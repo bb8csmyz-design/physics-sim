@@ -164,7 +164,7 @@ function drawEnergyBars(
   const opts = { track: pal.grid, labelColor: pal.fg, title: 'エネルギー' };
   if (narrow) {
     const bars = [
-      { label: 'W 電池の仕事', value: s.work, color: pal.quantity.energy },
+      { label: 'W 電池の仕事', value: s.work, color: pal.quantity.work },
       { label: 'U 静電', value: capacitorEnergy(p, s.q), color: pal.quantity.electric },
       { label: 'Q ジュール熱', value: s.heat, color: pal.quantity.heat },
     ];
@@ -174,7 +174,7 @@ function drawEnergyBars(
     });
   } else {
     const bars = [
-      { label: 'W', value: s.work, color: pal.quantity.energy },
+      { label: 'W', value: s.work, color: pal.quantity.work },
       { label: 'U', value: capacitorEnergy(p, s.q), color: pal.quantity.electric },
       { label: 'Q', value: s.heat, color: pal.quantity.heat },
     ];

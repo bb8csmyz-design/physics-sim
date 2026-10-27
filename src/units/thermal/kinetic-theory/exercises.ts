@@ -21,13 +21,15 @@ const GASES = [
   { name: 'アルゴン Ar', M: 40 },
   { name: '水素 H₂', M: 2 },
 ] as const;
+/** 単原子分子の気体（「単原子分子の理想気体」と書く問題では水素 H₂（二原子分子）を除く） */
+const MONATOMIC = GASES.filter((gas) => gas.M !== 2);
 
 export const EXERCISES: readonly ExerciseTemplate[] = [
   {
     id: 'rms-speed',
     title: '分子の二乗平均速度',
     generate(rng) {
-      const gas = pickOne(rng, GASES);
+      const gas = pickOne(rng, MONATOMIC);
       const p: KineticParams = { N: 100, T: pickStep(rng, 200, 1000, 10), M: gas.M, L: 0.1 };
       const v = rmsSpeed(p);
       return {
@@ -51,7 +53,7 @@ export const EXERCISES: readonly ExerciseTemplate[] = [
     id: 'mean-kinetic-energy',
     title: '分子の平均運動エネルギー',
     generate(rng) {
-      const gas = pickOne(rng, GASES);
+      const gas = pickOne(rng, MONATOMIC);
       const p: KineticParams = { N: 100, T: pickStep(rng, 100, 1000, 10), M: gas.M, L: 0.1 };
       const E = meanKineticEnergy(p);
       return {

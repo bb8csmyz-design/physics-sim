@@ -28,6 +28,7 @@ import {
   type SlitConfig,
   type SlitMode,
   type SlitState,
+  PRESET_CHOICES,
 } from './model';
 import { drawScene, type SceneOptions } from './scene';
 import { buildTheory } from './theory';
@@ -51,7 +52,7 @@ const unit: UnitModule = {
         { value: 'double', label: 'ダブルスリット' },
         { value: 'grating', label: '回折格子' },
       ],
-      presetChoice(preset?.choices, 'mode', ['double', 'grating'], 'double'),
+      presetChoice(preset?.choices, 'mode', PRESET_CHOICES.mode, 'double'),
       onChange,
     );
     const youngParams = createParamPanel(

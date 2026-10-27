@@ -28,7 +28,7 @@ const MEDIA = [
   { name: '水', n: 1.33 },
   { name: 'ガラス', n: 1.5 },
   { name: '透明な樹脂', n: 1.6 },
-  { name: 'ダイヤモンド', n: 2 },
+  { name: 'サファイア', n: 1.77 },
 ] as const;
 
 export const EXERCISES: readonly ExerciseTemplate[] = [
@@ -37,8 +37,7 @@ export const EXERCISES: readonly ExerciseTemplate[] = [
     title: '屈折角の正弦',
     generate(rng) {
       const theta1 = pickOne(rng, [30, 45, 60]);
-      const m = pickOne(rng, MEDIA);
-      const n2 = m.n === 2 ? 2 : pickStep(rng, 1.3, 1.8, 0.05);
+      const n2 = pickStep(rng, 1.3, 2, 0.05);
       const p: RefractionParams = { n1: 1, n2, theta1, lambda0: 600 };
       const s2 = Math.sin(refractionAngle(p));
       return {

@@ -12,6 +12,7 @@ import type { Palette, Quantity } from '@/core/theme';
 import { niceBounds, niceStep, niceTicks, tickDigits } from '@/core/ticks';
 import { createResponsiveCanvas } from './canvas';
 import { CANVAS_FONT_SMALL } from './draw';
+import { LEGEND_TEXT_OFFSET, layoutLegend } from './graphLegend';
 
 export interface SeriesSpec {
   /** 凡例の文字列（例: 'x', '運動エネルギー K'） */
@@ -62,7 +63,7 @@ export interface TimeGraph {
   redraw(): void;
 }
 
-const MARGIN = { left: 52, right: 14, top: 30, bottom: 30 };
+const MARGIN = { left: 52, right: 14, bottom: 30 };
 /** 1 画面あたりの最大点数（これより細かい記録は間引く） */
 const POINTS_PER_WINDOW = 600;
 
@@ -109,7 +110,12 @@ export function createTimeGraph(opts: TimeGraphOptions, disposer: Disposer): Tim
   ) {
     const x0 = MARGIN.left;
     const x1 = size.width - MARGIN.right;
-    const y0 = MARGIN.top;
+    ctx.font = CANVAS_FONT_SMALL;
+    const legend = layoutLegend(
+      opts.series.map((s) => ctx.measureText(s.label).width),
+      { left: 6, right: x1, yLabelRight: 6 + ctx.measureText(yLabel).width },
+    );
+    const y0 = legend.top;
     const y1 = size.height - MARGIN.bottom;
     const tNow = ts.length ? ts[ts.length - 1]! : 0;
     const tMax = Math.max(windowSec, tNow);
@@ -118,7 +124,6 @@ export function createTimeGraph(opts: TimeGraphOptions, disposer: Disposer): Tim
     const px = (t: number) => x0 + ((t - tMin) / (tMax - tMin)) * (x1 - x0);
     const py = (v: number) => y1 - ((v - yMin) / (yMax - yMin)) * (y1 - y0);
 
-    ctx.font = CANVAS_FONT_SMALL;
     ctx.lineWidth = 1;
 
     // 縦軸の目盛りとグリッド
@@ -159,7 +164,7 @@ export function createTimeGraph(opts: TimeGraphOptions, disposer: Disposer): Tim
     ctx.fillStyle = p.fg;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'bottom';
-    ctx.fillText(yLabel, 6, y0 - 10);
+    ctx.fillText(yLabel, 6, legend.yLabelBaseline);
     ctx.textAlign = 'right';
     ctx.textBaseline = 'bottom';
     ctx.fillText(opts.xLabel ?? (opts.timeUnit === 'ms' ? 't [ms]' : 't [s]'), x1, size.height - 2);
@@ -197,27 +202,21 @@ export function createTimeGraph(opts: TimeGraphOptions, disposer: Disposer): Tim
     });
     ctx.restore();
 
-    // 凡例（右上）
+    // 凡例（右上。入りきらなければ折り返す）
     ctx.textBaseline = 'middle';
     ctx.textAlign = 'left';
-    let lx = x1;
-    const ly = y0 - 14;
-    for (let i = opts.series.length - 1; i >= 0; i--) {
-      const s = opts.series[i]!;
-      const w = ctx.measureText(s.label).width;
-      lx -= w;
+    for (const it of legend.items) {
+      const s = opts.series[it.index]!;
       ctx.fillStyle = p.fg;
-      ctx.fillText(s.label, lx, ly);
-      lx -= 22;
+      ctx.fillText(s.label, it.x + LEGEND_TEXT_OFFSET, it.y);
       ctx.strokeStyle = seriesColor(s, p);
       ctx.lineWidth = 2.5;
       ctx.setLineDash(dashPattern(s, true));
       ctx.beginPath();
-      ctx.moveTo(lx, ly);
-      ctx.lineTo(lx + 16, ly);
+      ctx.moveTo(it.x, it.y);
+      ctx.lineTo(it.x + 16, it.y);
       ctx.stroke();
       ctx.setLineDash([]);
-      lx -= 12;
     }
   }
 

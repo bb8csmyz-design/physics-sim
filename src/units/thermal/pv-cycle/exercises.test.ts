@@ -8,6 +8,7 @@ import { checkExercises, numericAnswer, sampleExercises } from '@/units/exercise
 import { EXERCISES } from './exercises';
 import {
   CYCLES,
+  PRESET_CHOICES,
   buildCycle,
   internalEnergy,
   processPoint,
@@ -16,7 +17,7 @@ import {
   type Process,
 } from './model';
 
-checkExercises(EXERCISES, (ex) => CYCLES[ex.sim.choices!.cycle as CycleId].params);
+checkExercises(EXERCISES, (ex) => CYCLES[ex.sim.choices!.cycle as CycleId].params, PRESET_CHOICES);
 
 const template = (id: string) => EXERCISES.find((t) => t.id === id)!;
 const value = numericAnswer;

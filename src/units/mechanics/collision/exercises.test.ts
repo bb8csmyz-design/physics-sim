@@ -11,6 +11,7 @@ import {
   collisionTime,
   energies,
   initialState,
+  isOutOfFloor,
   momenta,
   step,
   type CollisionParams,
@@ -29,6 +30,22 @@ function afterCollisionState(p: CollisionParams) {
   expect(s.collidedAt).not.toBeNull();
   return s;
 }
+
+describe('答え合わせの条件で、床の表示範囲を出る前に衝突する', () => {
+  for (const t of EXERCISES) {
+    it(t.title, () => {
+      // B が速く右へ進む組み合わせはまれなので、多めのシードで調べる
+      for (const ex of sampleExercises(t, 1000)) {
+        const p = ex.sim.params as CollisionParams;
+        let s = initialState(p);
+        // 単元は isOutOfFloor で再生を止める（isFinished）ので、その前に衝突していること
+        while (s.collidedAt === null && !isOutOfFloor(s)) s = step(p, s, DT);
+        expect(s.collidedAt, ex.statement).not.toBeNull();
+        expect(isOutOfFloor(s), ex.statement).toBe(false);
+      }
+    });
+  }
+});
 
 describe('正解がシミュレーションと一致する', () => {
   it('衝突後の速度。運動量の和も保存されている', () => {

@@ -92,6 +92,10 @@ describe('数値の採点', () => {
     expect(formatAnswerValue(numeric(6.02e14))).toBe('6.0×10¹⁴');
     expect(formatAnswerValue(numeric(9.96e-7))).toBe('1.0×10⁻⁶');
     expect(formatAnswerValue(numeric(150))).toBe('150');
+    // 丸めで桁が上がるとき（有効数字の桁数を保つ）
+    expect(formatAnswerValue(numeric(0.996))).toBe('1.0');
+    expect(formatAnswerValue(numeric(9.97, undefined, { sig: 2 }))).toBe('10');
+    expect(formatAnswerValue(numeric(99960))).toBe('1.0×10⁵');
   });
 
   it('表示した正解を入力すると必ず正解になる', () => {
