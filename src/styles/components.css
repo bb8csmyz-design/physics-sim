@@ -814,3 +814,50 @@ a.unit-card:hover {
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+/* --- 力学サンドボックス（units/mechanics/sandbox） --- */
+.sandbox-tools {
+  padding: 12px 12px 0;
+}
+.sandbox-tools .choice {
+  margin-bottom: 6px;
+}
+.sandbox-hint {
+  margin: 0 0 10px;
+  min-height: 2.6em;
+  font-size: 0.8rem;
+  color: var(--fg-muted);
+}
+/* 配置・ドラッグにタッチを使うので、Canvas の上ではスクロールしない */
+.sandbox-canvas canvas {
+  touch-action: none;
+  cursor: default;
+}
+.sandbox-canvas canvas.is-placing {
+  cursor: crosshair;
+}
+.sandbox-params .select {
+  width: 100%;
+}
+.sandbox-selection {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.sandbox-selection > .btn {
+  align-self: flex-start;
+}
+.sandbox-sel-title {
+  margin: 0;
+  font-weight: 700;
+}
+.sandbox-note {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--fg-muted);
+}
+.sandbox-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
