@@ -70,6 +70,7 @@ const unit: UnitModule = {
           { label: 'NkT/V', quantity: 'energy', dashed: true },
         ],
         ariaLabel: '壁が受けた力積から測った圧力の時間変化と、状態方程式による理論値',
+        timeUnit: 'ms',
       },
       disposer,
     );
@@ -81,6 +82,7 @@ const unit: UnitModule = {
           { label: 'Nm⟨vₓ²⟩/L', quantity: 'energy', dashed: true },
         ],
         ariaLabel: 'x = L の壁が受ける力の時間平均と理論値',
+        timeUnit: 'ms',
       },
       disposer,
     );
@@ -128,7 +130,7 @@ const unit: UnitModule = {
       { key: 'pIdeal', label: '圧力 NkT/V', unit: 'Pa', quantity: 'pressure' },
       { key: 'U', label: '内部エネルギー', symbol: 'U', unit: 'J', quantity: 'internal' },
     ]);
-    const time = createTimeReadout(5);
+    const time = createTimeReadout(3, { unit: 'ms', note: `1/${1 / TIME_SCALE} 倍のスロー再生` });
 
     /** 直近の圧力を求めるための、最近の状態の記録（時刻の古い順） */
     let recent: ImpulseRecord[] = [];
@@ -227,7 +229,6 @@ const unit: UnitModule = {
         { class: 'toggle-list' },
         toggle('注目する分子と速度 v', 'showTracked'),
         toggle('速さの分布（ヒストグラム）', 'showHistogram'),
-        h('p', { class: 'slider-hint' }, '時間は 1 万分の 1 の速さで表示している'),
       ),
       values: h(
         'div',

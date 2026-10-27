@@ -24,6 +24,8 @@
   --sim-body: #334155;
   --sim-body-stroke: #1e293b;
   --sim-fixture: #64748b;
+  /* 光の干渉を映すスクリーン（暗室の幕。テーマによらず暗い） */
+  --sim-screen: #0b0d12;
 
   --q-position: #2563eb;
   --q-velocity: #ea580c;
@@ -37,6 +39,7 @@
   --q-magnetic: #0d9488;
   --q-current: #ca8a04;
   --q-heat: #e11d48;
+  --q-momentum: #8b5e34;
   --q-pressure: #4f46e5;
   --q-volume: #65a30d;
   --q-temperature: #c026d3;
@@ -71,6 +74,7 @@
   --sim-body: #cbd5e1;
   --sim-body-stroke: #f1f5f9;
   --sim-fixture: #8b95a7;
+  --sim-screen: #05060a;
 
   --q-position: #60a5fa;
   --q-velocity: #fb923c;
@@ -84,6 +88,7 @@
   --q-magnetic: #2dd4bf;
   --q-current: #facc15;
   --q-heat: #fb7185;
+  --q-momentum: #d4a373;
   --q-pressure: #818cf8;
   --q-volume: #a3e635;
   --q-temperature: #e879f9;

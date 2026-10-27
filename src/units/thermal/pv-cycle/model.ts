@@ -21,8 +21,8 @@ const R = GAS_CONSTANT;
 export type GasKind = 'monatomic' | 'diatomic';
 
 export const GAS_OPTIONS: readonly { value: GasKind; label: string }[] = [
-  { value: 'monatomic', label: '単原子分子（He, Ar など）' },
-  { value: 'diatomic', label: '二原子分子（N₂, O₂ など）' },
+  { value: 'monatomic', label: '単原子分子' },
+  { value: 'diatomic', label: '二原子分子' },
 ];
 
 /** 定積モル比熱 C_V [J/(mol·K)]（単原子 3R/2、二原子 5R/2） */
@@ -198,6 +198,7 @@ const TA_SPEC: ParamSpec<CycleParamKey> = {
 
 export interface CycleDef {
   id: CycleId;
+  /** 切り替えボタンに出す短い名前 */
   name: string;
   params: readonly ParamSpec<CycleParamKey>[];
   /** 状態 A から出発するサイクルの過程の列（最後の過程は A に戻る） */
@@ -235,7 +236,7 @@ function chain(kinds: readonly ProcessKind[], states: readonly StateVars[]): Pro
 export const CYCLES: Record<CycleId, CycleDef> = {
   rectangle: {
     id: 'rectangle',
-    name: '定積・定圧サイクル（長方形）',
+    name: '定積・定圧',
     params: [
       N_SPEC,
       TA_SPEC,
@@ -273,7 +274,7 @@ export const CYCLES: Record<CycleId, CycleDef> = {
   },
   isothermal: {
     id: 'isothermal',
-    name: '定積・等温・定圧サイクル',
+    name: '定積・等温・定圧',
     params: [
       N_SPEC,
       TA_SPEC,
@@ -299,7 +300,7 @@ export const CYCLES: Record<CycleId, CycleDef> = {
   },
   otto: {
     id: 'otto',
-    name: 'オットーサイクル（断熱・定積）',
+    name: 'オットー',
     params: [
       N_SPEC,
       TA_SPEC,
@@ -338,7 +339,7 @@ export const CYCLES: Record<CycleId, CycleDef> = {
   },
   carnot: {
     id: 'carnot',
-    name: 'カルノーサイクル（等温・断熱）',
+    name: 'カルノー',
     params: [
       N_SPEC,
       { ...TA_SPEC, label: '高温側の温度（状態 A）' },

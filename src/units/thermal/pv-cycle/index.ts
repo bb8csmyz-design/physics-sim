@@ -6,7 +6,7 @@ import { SimulationRunner } from '@/core/sim/runner';
 import { niceBounds } from '@/core/ticks';
 import { createResponsiveCanvas } from '@/ui/canvas';
 import { mountSimulationLayout } from '@/ui/layout';
-import { createParamPanel, createSelect, createToggle, type ParamPanel } from '@/ui/params';
+import { createChoice, createParamPanel, createToggle, type ParamPanel } from '@/ui/params';
 import { createPlaybackControls } from '@/ui/playback';
 import { createGraphTabs, createTimeGraph } from '@/ui/timeGraph';
 import { createValuePanel, createValueTable, type ValueTable } from '@/ui/valuePanel';
@@ -57,13 +57,13 @@ const unit: UnitModule = {
       });
       sliderHost.replaceChildren(params.element);
     };
-    const cycleSelect = createSelect('サイクルの種類', CYCLE_OPTIONS, cycleId, (v) => {
+    const cycleChoice = createChoice('サイクルの種類', CYCLE_OPTIONS, cycleId, (v) => {
       cycleId = v;
       makeSliders();
       applyParams();
       runner.reset();
     });
-    const gasSelect = createSelect('気体の種類', GAS_OPTIONS, gas, (v) => {
+    const gasChoice = createChoice('気体の種類', GAS_OPTIONS, gas, (v) => {
       gas = v;
       applyParams();
       runner.reset();
@@ -257,8 +257,8 @@ const unit: UnitModule = {
       params: h(
         'div',
         { class: 'param-panel' },
-        cycleSelect.element,
-        gasSelect.element,
+        cycleChoice.element,
+        gasChoice.element,
         sliderHost,
       ),
       options: h(

@@ -27,6 +27,11 @@ export interface RunnerOptions<S> {
   endTime?: number;
   /** 状態が物理的に破綻したら true を返す（NaN 検出など）。true なら一時停止する */
   isInvalid?: (state: S) => boolean;
+  /**
+   * 運動が終わったら true を返す（物体が壁に衝突した・画面外へ出たなど）。true なら一時停止し、
+   * 次に再生したときは t = 0 からやり直す（endTime と同じ扱い。警告は出さない）
+   */
+  isFinished?: (state: S) => boolean;
 }
 
 export type RunnerEvent = 'play' | 'pause' | 'reset' | 'speed';
@@ -42,6 +47,7 @@ export class SimulationRunner<S> {
   private _time = 0;
   private _playing = false;
   private _speed = 1;
+  private _timeScale: number;
   private accumulator = 0;
   private rafId: number | null = null;
   private renderRequested = false;
@@ -50,6 +56,7 @@ export class SimulationRunner<S> {
 
   constructor(opts: RunnerOptions<S>) {
     this.opts = opts;
+    this._timeScale = opts.timeScale ?? 1;
     this._state = opts.init();
     this.opts.onReset?.(this._state);
     this.requestRender();
@@ -70,10 +77,13 @@ export class SimulationRunner<S> {
   get dt(): number {
     return this.opts.dt;
   }
+  get timeScale(): number {
+    return this._timeScale;
+  }
 
   play(): void {
     if (this._playing) return;
-    if (this.opts.endTime !== undefined && this._time >= this.opts.endTime) this.reset();
+    if (this.finished()) this.reset();
     this._playing = true;
     this.lastFrame = performance.now();
     this.emit('play');
@@ -115,6 +125,15 @@ export class SimulationRunner<S> {
     this.emit('speed');
   }
 
+  /**
+   * 実時間 1 秒あたりに進むシミュレーション時間を変える。
+   * 振動数がパラメータで大きく変わる単元（音の固有振動など）で、見かけの速さをそろえるのに使う。
+   */
+  setTimeScale(timeScale: number): void {
+    if (!(timeScale > 0)) throw new RangeError('timeScale は正の数であること');
+    this._timeScale = timeScale;
+  }
+
   /** 次のアニメーションフレームで 1 回描画する（停止中のパラメータ変更・リサイズ時など） */
   requestRender(): void {
     this.renderRequested = true;
@@ -143,7 +162,7 @@ export class SimulationRunner<S> {
 
   /** 1 ステップ進める。破綻・終了で停止したら false */
   private stepOnce(): boolean {
-    const { dt, endTime } = this.opts;
+    const { dt } = this.opts;
     this._state = this.opts.step(this._state, this._time, dt);
     this._time += dt;
     this.opts.onStep?.(this._state, this._time);
@@ -152,11 +171,20 @@ export class SimulationRunner<S> {
       this.pause();
       return false;
     }
-    if (endTime !== undefined && this._time >= endTime - dt / 2) {
+    if (this.finished()) {
       this.pause();
       return false;
     }
     return true;
+  }
+
+  /** 終了時刻・終了条件に達しているか（達していれば再生ボタンで最初から再生する） */
+  private finished(): boolean {
+    const { endTime, isFinished } = this.opts;
+    return (
+      (endTime !== undefined && this._time >= endTime - this.opts.dt / 2) ||
+      (isFinished?.(this._state) ?? false)
+    );
   }
 
   private readonly frame = (now: number): void => {
@@ -164,7 +192,7 @@ export class SimulationRunner<S> {
     if (this._playing) {
       const real = Math.min((now - this.lastFrame) / 1000, MAX_FRAME_DELTA);
       this.lastFrame = now;
-      this.accumulator += real * (this.opts.timeScale ?? 1) * this._speed;
+      this.accumulator += real * this._timeScale * this._speed;
       let n = 0;
       while (this.accumulator >= this.opts.dt && n < MAX_STEPS_PER_FRAME) {
         this.accumulator -= this.opts.dt;

@@ -33,24 +33,30 @@ src/
     dom.ts                h() / symbol() / Disposer
     format.ts             数値表示（負号 U+2212、有効数字）
     params.ts             ParamSpec 型・paramCorners()（テスト用の全隅の組）
+    contour.ts            sampleGrid() / contourSegments()（等値線。等電位線などに使う）
     theme.ts              ライト/ダーク、Canvas 用パレット、物理量の色
     ticks.ts              グラフ目盛り
-    sim/runner.ts         SimulationRunner（固定刻みの時間発展 + rAF 描画）
+    sim/runner.ts         SimulationRunner（固定刻みの時間発展 + rAF 描画。timeScale でスロー再生、isFinished で衝突などの終了）
     physics/
       integrators.ts      数値積分（Euler, 中点法, RK4, シンプレクティック Euler, 速度ベルレ, 吉田4次）
       analysis.ts         検証用（相対誤差・収束次数・周期推定）
+      special.ts          特殊関数（完全楕円積分。単振り子の厳密な周期など）
       constants.ts        物理定数（g = 9.8）
   ui/                     共通 UI 部品（全単元で使う）
     layout.ts             mountSimulationLayout()  単元ページの標準レイアウト
-    params.ts             createParamPanel() / createSlider() / createToggle() / createSelect()
-    playback.ts           createPlaybackControls() / createTimeReadout()
-    timeGraph.ts          createTimeGraph() / createGraphTabs()
+    params.ts             createParamPanel() / createSlider() / createToggle() / createChoice()（スイッチの切り替えなど択一）
+    playback.ts           createPlaybackControls() / createTimeReadout()（unit: 's' / 'ms' / 'T'、注記「1/n 倍のスロー再生」と setNote）
+    timeGraph.ts          createTimeGraph() / createGraphTabs()（timeUnit: 'ms' で横軸をミリ秒表示）
     valuePanel.ts         createValuePanel() / createValueTable()（過程ごとの Q, W, ΔU などの表）
     math.ts               tex() / richText()
     theory.ts             theory() / section() / p() / eq() / ul() / note() / question()
     canvas.ts             createResponsiveCanvas() / fitViewport()
     plot.ts               drawPlotAxes()  Canvas 内に描く x-y グラフ（p-V 図・分布など）の軸と目盛り
-    draw.ts               drawArrow / drawSpring / drawBlock / drawBall / drawFixture / drawLabel ...
+    draw.ts               drawArrow / drawVector / drawSpring / drawSpringBetween / drawBlock / drawBall /
+                          drawFixture / drawFixturePolygon / drawPath / drawEnergyBars / drawScaleBar /
+                          drawLabel / drawSymbol / drawBarChart
+                          回路: drawCircuitElement（抵抗・コンデンサー・コイル・電池・交流電源）/ drawWire /
+                          drawTerminal / drawJunction / drawFlowDots（電流の流れ）、drawOutOfPlaneMark（⊙ ⊗）
   pages/                  トップページ・単元ページの枠
   styles/                 tokens.css（色・余白）, base.css, components.css
   units/
@@ -91,6 +97,7 @@ src/
 3. `createTimeGraph` × n → `createGraphTabs`
 4. `createValuePanel`（現在値）＋必要なら「この条件での値」（周期など定数）
 5. `new SimulationRunner({ dt: DT, init, step, onStep: グラフ記録, onReset: グラフ消去, render, isInvalid })`
+   （着地・落下・衝突などで運動が終わる単元は `isFinished` で自動停止させる）
 6. `disposer.add(() => runner.destroy())`
 7. `mountSimulationLayout(root, { stage, playback, status, params, options, values, graphs, theory })`
 
@@ -133,15 +140,15 @@ src/
 - **言語は日本語**。用語は高校教科書に合わせる。ボタン名は「再生 / 一時停止 / リセット」など既存部品の表記を使う。
 - **レイアウトは `mountSimulationLayout()` を必ず使う**。セクションの名前と並び（シミュレーション → パラメータ →
   表示 → グラフ → 現在の値 → 解説）を単元ごとに変えない。独自のレイアウトや独自の再生ボタンを作らない。
-- **共通部品を使う**: スライダーは `createParamPanel`、選択肢は `createSelect`、グラフは `createTimeGraph`
+- **共通部品を使う**: スライダーは `createParamPanel`、択一の切り替えは `createChoice`、グラフは `createTimeGraph`
   （p-V 図など時間以外を横軸にする図は Canvas 内に `drawPlotAxes` で描く）、値表示は `createValuePanel` / `createValueTable`、
   数式は `tex` / `richText`、矢印・ばね・壁などの描画は `ui/draw.ts`。足りない機能は共通部品側に追加する
   （単元内で似た部品を作らない）。
 - **色**: 色は `styles/tokens.css` の CSS 変数と `getPalette()` 経由でのみ指定する（直書き禁止）。ダークモードで
   必ず確認する。**物理量の色は全単元共通**（`--q-*` / `QUANTITY_COLORS`）:
   位置 = 青, 速度 = 橙, 加速度 = 緑, 力 = 赤, 運動エネルギー = 黄, 位置エネルギー = 紫, 力学的エネルギー = 灰,
-  電場 = ピンク, 磁場 = 青緑, 電流 = 黄土, 熱 = ローズ, 圧力 = 藍, 体積 = 黄緑, 温度 = 赤紫, 仕事 = 空色,
-  内部エネルギー = 緑青。グラフ・矢印・値パネルの色見本で同じ色を使う。
+  電場 = ピンク, 磁場 = 青緑, 電流 = 黄土, 熱 = ローズ, 運動量 = 茶, 圧力 = 藍, 体積 = 黄緑, 温度 = 赤紫,
+  仕事 = 空色, 内部エネルギー = 緑青。グラフ・矢印・値パネルの色見本で同じ色を使う。
   新しい物理量の色が必要なら `tokens.css`（ライト・ダーク両方）と `theme.ts` の両方に追加する。
 - **矢印（ベクトル）**: 速度・力などは `drawArrow` で物理量の色を使い、記号のラベル（`v`, `F`）を付ける。
   長さはパラメータ範囲で画面からはみ出さないよう規格化する。

@@ -8,6 +8,9 @@
 /** 重力加速度 [m/s²]（入試・教科書の慣例値） */
 export const G_ACCEL = 9.8;
 
+/** 空気中の音速 [m/s]（入試の慣例値。約 15 ℃ の空気） */
+export const SPEED_OF_SOUND = 340;
+
 /** 真空中の光速 [m/s]（定義値） */
 export const SPEED_OF_LIGHT = 299_792_458;
 /** 電気素量 [C]（定義値） */
@@ -32,3 +35,6 @@ export const VACUUM_PERMEABILITY = 1.256_637_062_12e-6;
 export const COULOMB_CONSTANT = 1 / (4 * Math.PI * VACUUM_PERMITTIVITY);
 /** 万有引力定数 [N·m²/kg²] */
 export const GRAVITATIONAL_CONSTANT = 6.674_30e-11;
+
+/** 地球の半径 [m]（入試の慣例値 6.4×10⁶ m。GM = gR² と組み合わせて使う） */
+export const EARTH_RADIUS = 6.4e6;

@@ -293,6 +293,14 @@ a.unit-card:hover {
     grid-template-rows: auto 1fr auto;
     align-items: start;
   }
+  /* 時間グラフのない単元（光学など）は、現在の値をシミュレーションの横に置く */
+  .sim-layout.no-graphs {
+    grid-template-areas:
+      'stage params'
+      'stage options'
+      'stage values';
+    grid-template-rows: auto auto 1fr;
+  }
 }
 
 .panel {
@@ -386,6 +394,11 @@ a.unit-card:hover {
   font-size: 1rem;
   font-variant-numeric: tabular-nums;
   padding-right: 4px;
+}
+.time-note {
+  margin-left: 8px;
+  font-size: 0.78rem;
+  color: var(--fg-muted);
 }
 
 /* --- スライダー --- */
@@ -548,10 +561,27 @@ a.unit-card:hover {
   font-size: 0.88rem;
   cursor: pointer;
 }
-.seg-btn[aria-selected='true'] {
+.seg-btn[aria-selected='true'],
+.seg-btn[aria-checked='true'] {
   background: var(--surface);
   color: var(--fg);
   box-shadow: var(--shadow);
+}
+
+/* --- 択一の切り替え（createChoice） --- */
+.choice {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.choice .seg {
+  display: flex;
+  margin-bottom: 0;
+}
+.choice .seg-btn {
+  flex: 1 1 auto;
+  min-height: 40px;
 }
 
 /* --- 現在値パネル --- */
@@ -698,18 +728,6 @@ a.unit-card:hover {
 }
 .toast > span {
   flex: 1;
-}
-
-/* --- 選択肢（createSelect） --- */
-.select-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.select-field-input {
-  width: 100%;
-  font: inherit;
-  color: var(--fg);
 }
 
 /* --- 値の表（createValueTable） --- */
