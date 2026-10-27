@@ -35,3 +35,6 @@ export const VACUUM_PERMEABILITY = 1.256_637_062_12e-6;
 export const COULOMB_CONSTANT = 1 / (4 * Math.PI * VACUUM_PERMITTIVITY);
 /** 万有引力定数 [N·m²/kg²] */
 export const GRAVITATIONAL_CONSTANT = 6.674_30e-11;
+
+/** 地球の半径 [m]（入試の慣例値 6.4×10⁶ m。GM = gR² と組み合わせて使う） */
+export const EARTH_RADIUS = 6.4e6;

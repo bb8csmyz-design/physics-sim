@@ -18,7 +18,7 @@ export interface ValueSpec<K extends string = string> {
 
 export interface ValuePanel<K extends string> {
   readonly element: HTMLElement;
-  /** 数値は書式を整えて表示する。文字列（「実像・倒立」など）はそのまま表示する */
+  /** 数値は書式を整えて表示する。文字列（「実像・倒立」「1 周する」などの判定）はそのまま表示する */
   update(values: Partial<Record<K, number | string>>): void;
 }
 

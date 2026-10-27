@@ -82,6 +82,7 @@ export const QUANTITY_COLORS = [
   'magnetic',
   'current',
   'heat',
+  'momentum',
 ] as const;
 export type Quantity = (typeof QUANTITY_COLORS)[number];
 

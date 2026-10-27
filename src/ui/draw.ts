@@ -569,3 +569,186 @@ export function drawBarChart(
   }
   ctx.restore();
 }
+
+/**
+ * ラベル付きのベクトル矢印。始点 (x, y) から (dx, dy) [px] だけ伸ばし、
+ * 先端の少し先に記号（'v', 'mg' など）を書く。短すぎる矢印にはラベルを付けない。
+ */
+export function drawVector(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  dx: number,
+  dy: number,
+  color: string,
+  label?: string,
+  style: Omit<ArrowStyle, 'color'> = {},
+): void {
+  drawArrow(ctx, x, y, x + dx, y + dy, { ...style, color });
+  const len = Math.hypot(dx, dy);
+  if (!label || len < 12) return;
+  const ux = dx / len;
+  const uy = dy / len;
+  // 横向きに近い矢印は、長いラベル（'mg sinθ' など）が矢印に重ならないよう先端の外側にそろえる
+  const horizontal = Math.abs(ux) > 0.7;
+  const off = horizontal ? 6 : 11;
+  drawLabel(ctx, label, x + dx + ux * off, y + dy + uy * off, color, {
+    font: CANVAS_FONT_MATH,
+    align: horizontal ? (ux > 0 ? 'left' : 'right') : 'center',
+  });
+}
+
+/**
+ * (x0, y0) から (x1, y1) まで、任意の向きに伸びるつる巻きばね。
+ * drawSpring（水平）を回転して描く。
+ */
+export function drawSpringBetween(
+  ctx: CanvasRenderingContext2D,
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  opts: { coils?: number; amplitude?: number; color: string; width?: number; lead?: number },
+): void {
+  const len = Math.hypot(x1 - x0, y1 - y0);
+  ctx.save();
+  ctx.translate(x0, y0);
+  ctx.rotate(Math.atan2(y1 - y0, x1 - x0));
+  drawSpring(ctx, 0, len, 0, opts);
+  ctx.restore();
+}
+
+/** 点列を結ぶ折れ線（軌跡など）。点は画面座標 [px] */
+export function drawPath(
+  ctx: CanvasRenderingContext2D,
+  points: readonly { x: number; y: number }[],
+  color: string,
+  opts: { width?: number; dashed?: boolean; alpha?: number } = {},
+): void {
+  if (points.length < 2) return;
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = opts.width ?? 2;
+  ctx.globalAlpha = opts.alpha ?? 1;
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+  if (opts.dashed) ctx.setLineDash([6, 5]);
+  ctx.beginPath();
+  ctx.moveTo(points[0]!.x, points[0]!.y);
+  for (let i = 1; i < points.length; i++) ctx.lineTo(points[i]!.x, points[i]!.y);
+  ctx.stroke();
+  ctx.restore();
+}
+
+export interface EnergyBar {
+  /** 棒の下に書く記号（'K', 'U', 'E' など） */
+  label: string;
+  value: number;
+  color: string;
+}
+
+/**
+ * 右上のエネルギー棒グラフ。reference（初めの力学的エネルギーなど）を棒の高さ maxHeight に対応させる。
+ * 値が負になりうる量（重力の位置エネルギーなど）は、基準を変えて非負にしてから渡す。
+ */
+export function drawEnergyBars(
+  ctx: CanvasRenderingContext2D,
+  right: number,
+  top: number,
+  maxHeight: number,
+  bars: readonly EnergyBar[],
+  reference: number,
+  pal: { grid: string; fg: string },
+): void {
+  if (!(reference > 0)) return;
+  const barW = 14;
+  const gap = 8;
+  const bottom = top + maxHeight;
+  bars.forEach((b, i) => {
+    const x = right - (bars.length - i) * (barW + gap) + gap;
+    const hgt = (Math.max(0, Math.min(b.value, reference * 1.05)) / reference) * maxHeight;
+    ctx.fillStyle = pal.grid;
+    ctx.fillRect(x, top, barW, maxHeight);
+    ctx.fillStyle = b.color;
+    ctx.fillRect(x, bottom - hgt, barW, hgt);
+    drawLabel(ctx, b.label, x + barW / 2, bottom + 11, pal.fg, { font: CANVAS_FONT_MATH });
+  });
+}
+
+/** 縮尺の目安（「1 m」などの基準長の線）。左端 (x, y) から右へ、およそ maxPx 以下のきりのよい長さで描く */
+export function drawScaleBar(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  pxPerUnit: number,
+  maxPx: number,
+  color: string,
+  unit = 'm',
+  unitFactor = 1,
+): void {
+  // きりのよい長さ（1, 2, 5 × 10ⁿ）で maxPx に収まる最大のもの
+  const maxLen = maxPx / pxPerUnit;
+  const mag = 10 ** Math.floor(Math.log10(maxLen));
+  const nice = [5, 2, 1].map((c) => c * mag).find((v) => v <= maxLen) ?? mag;
+  const w = nice * pxPerUnit;
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(x, y - 4);
+  ctx.lineTo(x, y);
+  ctx.lineTo(x + w, y);
+  ctx.lineTo(x + w, y - 4);
+  ctx.stroke();
+  ctx.restore();
+  const shown = Number((nice / unitFactor).toPrecision(3));
+  drawLabel(ctx, `${shown} ${unit}`, x + w / 2, y - 10, color, { font: CANVAS_FONT_SMALL });
+}
+
+/**
+ * 斜線ハッチ付きの多角形の固定物（斜面の台など）。points は画面座標 [px]。
+ * outline に指定した辺（i 番目の点から i+1 番目の点）だけ実線で縁取る（省略時は全周）。
+ */
+export function drawFixturePolygon(
+  ctx: CanvasRenderingContext2D,
+  points: readonly { x: number; y: number }[],
+  color: string,
+  outline?: readonly number[],
+): void {
+  if (points.length < 3) return;
+  const xs = points.map((q) => q.x);
+  const ys = points.map((q) => q.y);
+  const x0 = Math.min(...xs);
+  const y0 = Math.min(...ys);
+  const w = Math.max(...xs) - x0;
+  const hgt = Math.max(...ys) - y0;
+  ctx.save();
+  ctx.beginPath();
+  points.forEach((q, i) => (i === 0 ? ctx.moveTo(q.x, q.y) : ctx.lineTo(q.x, q.y)));
+  ctx.closePath();
+  ctx.clip();
+  ctx.strokeStyle = color;
+  ctx.globalAlpha = 0.5;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let d = -hgt; d < w + hgt; d += 8) {
+    ctx.moveTo(x0 + d, y0 + hgt);
+    ctx.lineTo(x0 + d + hgt, y0);
+  }
+  ctx.stroke();
+  ctx.restore();
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  const edges = outline ?? points.map((_, i) => i);
+  for (const i of edges) {
+    const a = points[i]!;
+    const b = points[(i + 1) % points.length]!;
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+  }
+  ctx.stroke();
+  ctx.restore();
+}
