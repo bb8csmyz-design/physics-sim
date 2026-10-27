@@ -381,6 +381,55 @@ export function drawCircuitElement(
   ctx.restore();
 }
 
+/**
+ * (x0, y0) から (x1, y1) への導線の途中に、開閉スイッチ（ナイフスイッチ）を描く。
+ * 両端の接点は白抜きの小円（fill は背景色）。開いているときはレバーを 30° 持ち上げる。
+ */
+export function drawSwitch(
+  ctx: CanvasRenderingContext2D,
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  closed: boolean,
+  style: { color: string; fill: string; width?: number; size?: number },
+): void {
+  const len = Math.hypot(x1 - x0, y1 - y0);
+  const size = Math.min(style.size ?? 36, len * 0.8);
+  const a = (len - size) / 2;
+  const b = (len + size) / 2;
+  ctx.save();
+  ctx.translate(x0, y0);
+  ctx.rotate(Math.atan2(y1 - y0, x1 - x0));
+  ctx.strokeStyle = style.color;
+  ctx.lineWidth = style.width ?? 2;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(a, 0);
+  ctx.moveTo(b, 0);
+  ctx.lineTo(len, 0);
+  ctx.stroke();
+  // レバー（導線の向きによらず、画面の上側か左側へ開く）
+  const up = Math.abs(y1 - y0) > Math.abs(x1 - x0) ? (y1 > y0 ? 1 : -1) : x1 > x0 ? -1 : 1;
+  const angle = closed ? 0 : (up * Math.PI) / 6;
+  ctx.lineWidth = (style.width ?? 2) * 1.5;
+  ctx.beginPath();
+  ctx.moveTo(a, 0);
+  ctx.lineTo(a + size * Math.cos(angle), size * Math.sin(angle));
+  ctx.stroke();
+  ctx.restore();
+  for (const u of [a, b]) {
+    drawTerminal(
+      ctx,
+      x0 + ((x1 - x0) * u) / len,
+      y0 + ((y1 - y0) * u) / len,
+      style.color,
+      style.fill,
+    );
+  }
+}
+
 /** 導線（折れ線） */
 export function drawWire(
   ctx: CanvasRenderingContext2D,
