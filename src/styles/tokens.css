@@ -1,0 +1,115 @@
+/*
+ * デザイントークン（色・余白・角丸）。色は必ずここの変数を使い、直接の色指定はしない。
+ * 物理量の色（--q-*）は全単元共通。core/theme.ts の QUANTITY_COLORS と対応させる。
+ */
+:root,
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --surface-2: #eef1f5;
+  --fg: #1a1d23;
+  --fg-muted: #5b6472;
+  --border: #dbe0e7;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-fg: #ffffff;
+  --accent-soft: #e0eaff;
+  --danger: #dc2626;
+  --shadow: 0 1px 2px rgb(15 23 42 / 6%), 0 2px 8px rgb(15 23 42 / 5%);
+
+  --sim-bg: #ffffff;
+  --sim-grid: #e9ecf1;
+  --sim-axis: #9aa3af;
+  --sim-body: #334155;
+  --sim-body-stroke: #1e293b;
+  --sim-fixture: #64748b;
+
+  --q-position: #2563eb;
+  --q-velocity: #ea580c;
+  --q-acceleration: #16a34a;
+  --q-force: #dc2626;
+  --q-kinetic: #d97706;
+  --q-potential: #7c3aed;
+  --q-energy: #475569;
+  --q-time: #0891b2;
+  --q-electric: #db2777;
+  --q-magnetic: #0d9488;
+  --q-current: #ca8a04;
+  --q-heat: #e11d48;
+
+  --field-mechanics: #2563eb;
+  --field-thermal: #e11d48;
+  --field-waves: #0891b2;
+  --field-electromagnetism: #7c3aed;
+  --field-atomic: #d97706;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0f1115;
+  --surface: #171a21;
+  --surface-2: #20242d;
+  --fg: #e6e8ec;
+  --fg-muted: #9aa3b2;
+  --border: #2c313c;
+  --accent: #60a5fa;
+  --accent-hover: #93c5fd;
+  --accent-fg: #0b1220;
+  --accent-soft: #1b2a45;
+  --danger: #f87171;
+  --shadow: 0 1px 2px rgb(0 0 0 / 40%);
+
+  --sim-bg: #13161c;
+  --sim-grid: #242a35;
+  --sim-axis: #5d6676;
+  --sim-body: #cbd5e1;
+  --sim-body-stroke: #f1f5f9;
+  --sim-fixture: #8b95a7;
+
+  --q-position: #60a5fa;
+  --q-velocity: #fb923c;
+  --q-acceleration: #4ade80;
+  --q-force: #f87171;
+  --q-kinetic: #fbbf24;
+  --q-potential: #a78bfa;
+  --q-energy: #cbd5e1;
+  --q-time: #22d3ee;
+  --q-electric: #f472b6;
+  --q-magnetic: #2dd4bf;
+  --q-current: #facc15;
+  --q-heat: #fb7185;
+
+  --field-mechanics: #60a5fa;
+  --field-thermal: #fb7185;
+  --field-waves: #22d3ee;
+  --field-electromagnetism: #a78bfa;
+  --field-atomic: #fbbf24;
+}
+
+:root {
+  --radius: 12px;
+  --radius-sm: 8px;
+  --gap: 16px;
+  --font-sans:
+    system-ui, -apple-system, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP',
+    'Yu Gothic UI', Meiryo, sans-serif;
+  --font-math: 'Times New Roman', 'STIX Two Math', serif;
+  --header-h: 56px;
+}
+
+[data-field='mechanics'] {
+  --field-color: var(--field-mechanics);
+}
+[data-field='thermal'] {
+  --field-color: var(--field-thermal);
+}
+[data-field='waves'] {
+  --field-color: var(--field-waves);
+}
+[data-field='electromagnetism'] {
+  --field-color: var(--field-electromagnetism);
+}
+[data-field='atomic'] {
+  --field-color: var(--field-atomic);
+}

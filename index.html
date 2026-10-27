@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="高校物理〜大学入試レベルの現象を、動かして確かめるシミュレーション集"
+    />
+    <meta name="theme-color" content="#f7f8fa" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <title>物理シミュレーション学習</title>
+    <script>
+      // 初回描画前にテーマを決めて、ちらつきを防ぐ（core/theme.ts と同じ規則）
+      (function () {
+        var pref = 'system';
+        try {
+          pref = localStorage.getItem('physics-sim:theme') || 'system';
+        } catch (e) {}
+        var dark =
+          pref === 'dark' ||
+          (pref !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#app">本文へ移動</a>
+    <header class="app-header">
+      <a class="brand" href="#/">
+        <img src="/favicon.svg" alt="" width="28" height="28" />
+        <span>物理シミュレーション</span>
+      </a>
+      <button type="button" id="theme-toggle" class="btn btn-ghost theme-toggle"></button>
+    </header>
+    <main id="app" class="app-main" tabindex="-1"></main>
+    <footer class="app-footer">
+      <p>物理シミュレーション学習 ・ 高校物理〜大学入試レベル</p>
+    </footer>
+    <div id="toast-region" class="toast-region" aria-live="polite"></div>
+    <noscript>このアプリを使うには JavaScript を有効にしてください。</noscript>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
