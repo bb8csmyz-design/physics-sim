@@ -729,3 +729,57 @@ a.unit-card:hover {
 .toast > span {
   flex: 1;
 }
+
+/* --- 値の表（createValueTable） --- */
+.value-table-wrap {
+  overflow-x: auto;
+}
+.value-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+  font-variant-numeric: tabular-nums;
+}
+.value-table th,
+.value-table td {
+  padding: 5px 4px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.value-table thead th {
+  font-weight: 600;
+  color: var(--fg-muted);
+  text-align: right;
+}
+.value-table thead th:first-child,
+.value-table tbody th {
+  text-align: left;
+  font-weight: 600;
+}
+.value-table td {
+  text-align: right;
+}
+.value-table th .swatch {
+  display: inline-block;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+.value-table th .unit {
+  margin-left: 2px;
+}
+.value-table tr.is-active {
+  background: var(--accent-soft);
+}
+.value-table tr.is-total th,
+.value-table tr.is-total td {
+  font-weight: 700;
+  border-bottom: 0;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

@@ -53,6 +53,8 @@ export interface TimeGraph {
   push(t: number, values: readonly number[]): void;
   clear(): void;
   setYRange(range: readonly [number, number] | null): void;
+  /** 縦軸ラベルを変える（パラメータに応じて単位の桁を変えるときなど） */
+  setYLabel(label: string): void;
   /** 表示する時間幅 [s] を変える（周期に合わせるときなど） */
   setWindow(seconds: number): void;
   redraw(): void;
@@ -70,6 +72,7 @@ export function createTimeGraph(opts: TimeGraphOptions, disposer: Disposer): Tim
   let fixedRange: readonly [number, number] | null = opts.yRange ?? null;
   let autoMin = Infinity;
   let autoMax = -Infinity;
+  let yLabel = opts.yLabel;
 
   const view = createResponsiveCanvas(
     {
@@ -154,7 +157,7 @@ export function createTimeGraph(opts: TimeGraphOptions, disposer: Disposer): Tim
     ctx.fillStyle = p.fg;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'bottom';
-    ctx.fillText(opts.yLabel, 6, y0 - 10);
+    ctx.fillText(yLabel, 6, y0 - 10);
     ctx.textAlign = 'right';
     ctx.textBaseline = 'bottom';
     ctx.fillText(opts.timeUnit === 'ms' ? 't [ms]' : 't [s]', x1, size.height - 2);
@@ -249,6 +252,9 @@ export function createTimeGraph(opts: TimeGraphOptions, disposer: Disposer): Tim
     },
     setYRange(range) {
       fixedRange = range;
+    },
+    setYLabel(label) {
+      yLabel = label;
     },
     setWindow(seconds) {
       windowSec = seconds;

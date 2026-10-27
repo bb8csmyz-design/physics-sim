@@ -70,11 +70,19 @@ function applyProps(el: HTMLElement, props: Props): void {
 
 /**
  * 物理量の記号を描画する。'v_0' → <var>v</var><sub>0</sub>、'x' → <var>x</var>
+ * 比は '/' で区切る: 'p_B/p_A' → <var>p</var><sub>B</sub>/<var>p</var><sub>A</sub>
  * 添字は立体（ローマン体）。数式全体が必要なら ui/math.ts の tex() を使う。
  */
 export function symbol(sym: string): HTMLElement {
-  const [base = '', sub] = sym.split('_');
-  return h('span', { class: 'sym' }, h('var', null, base), sub ? h('sub', null, sub) : null);
+  const parts = sym.split('/').map((part) => {
+    const [base = '', sub] = part.split('_');
+    return [h('var', null, base), sub ? h('sub', null, sub) : null];
+  });
+  return h(
+    'span',
+    { class: 'sym' },
+    parts.flatMap((p, i) => (i === 0 ? p : ['/', ...p])),
+  );
 }
 
 /** 後片付け処理をまとめて実行するための入れ物 */
