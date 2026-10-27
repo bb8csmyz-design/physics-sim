@@ -105,26 +105,35 @@ export function createPlaybackControls<S>(
 }
 
 /**
- * 「t = 1.23 s」の時刻表示。render のたびに update(t) を呼ぶ（t は秒）。
- * 現象の時間スケールが短いときは unit / scale で表示単位を変える（例: { unit: 'ns', scale: 1e9 }）。
+ * 「t = 1.23 s」の時刻表示。render のたびに update(t) を呼ぶ。
+ * - unit: 時刻の単位。光の波のように周期 T を単位にするときは 'T'（update には t/T を渡す）。
+ *   'ms' / 'ns' なら update に秒で渡した t をミリ秒・ナノ秒にして表示する（速い回路や電子の運動など）
+ * - note: 補足（「1/50 倍のスロー再生」など、実時間と進み方が違うことを示す）。setNote で変えられる
  */
 export function createTimeReadout(
   digits = 2,
-  display: { unit: string; scale: number } = { unit: 's', scale: 1 },
-): { element: HTMLElement; update(t: number): void } {
+  opts: { unit?: 's' | 'ms' | 'ns' | 'T'; note?: string } = {},
+): { element: HTMLElement; update(t: number): void; setNote(note: string): void } {
+  const unit = opts.unit ?? 's';
   const value = h('span', { class: 'num' });
+  const note = h('span', { class: 'time-note' }, opts.note ?? '');
   const element = h(
     'div',
     { class: 'time-readout' },
     h('var', null, 't'),
     ' = ',
     value,
-    ` ${display.unit}`,
+    ' ',
+    unit === 'T' ? h('var', null, 'T') : unit,
+    note,
   );
   return {
     element,
     update(t) {
-      value.textContent = formatFixed(t * display.scale, digits);
+      value.textContent = formatFixed(t * (unit === 'ms' ? 1e3 : unit === 'ns' ? 1e9 : 1), digits);
+    },
+    setNote(text) {
+      note.textContent = text;
     },
   };
 }

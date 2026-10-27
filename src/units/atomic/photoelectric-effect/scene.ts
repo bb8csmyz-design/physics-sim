@@ -10,7 +10,7 @@ import {
   CANVAS_FONT_MATH,
   CANVAS_FONT_SMALL,
   drawArrow,
-  drawBattery,
+  drawCircuitElement,
   drawLabel,
   drawMeter,
   drawPhoton,
@@ -209,15 +209,30 @@ export function drawScene(
   ctx.beginPath();
   ctx.moveTo(xl, vp.y(-PLATE_H));
   ctx.lineTo(xl, wy);
-  ctx.lineTo(xb - 4, wy);
-  ctx.moveTo(xb + 4, wy);
+  ctx.lineTo(xb - 14, wy);
+  ctx.moveTo(xb + 14, wy);
   ctx.lineTo(xm - mr, wy);
   ctx.moveTo(xm + mr, wy);
   ctx.lineTo(xr, wy);
   ctx.lineTo(xr, vp.y(-PLATE_H));
   ctx.stroke();
   ctx.restore();
-  drawBattery(ctx, xb, wy, p.V >= 0 ? 'right' : 'left', pal.fg, 12);
+  // 電源（正極＝長い線を、電位の高い側の極板につなぐ）
+  const plusRight = p.V >= 0;
+  drawCircuitElement(
+    ctx,
+    'battery',
+    xb + (plusRight ? -14 : 14),
+    wy,
+    xb + (plusRight ? 14 : -14),
+    wy,
+    {
+      color: pal.fg,
+      width: 1.5,
+      size: 8,
+    },
+  );
+  drawLabel(ctx, '+', xb + (plusRight ? 11 : -11), wy - 20, pal.fg, { font: CANVAS_FONT_SMALL });
   drawMeter(ctx, xm, wy, mr, 'A', pal.fg, pal.bg);
   const sign = p.V > 0 ? '+' : '';
   drawLabel(ctx, `V = ${sign}${formatFixed(p.V, 2)} V`, xb, wy + 22, pal.fg, {

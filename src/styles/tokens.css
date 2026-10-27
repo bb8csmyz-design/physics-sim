@@ -24,9 +24,9 @@
   --sim-body: #334155;
   --sim-body-stroke: #1e293b;
   --sim-fixture: #64748b;
-  /* 分光器の視野（スペクトル線を描く暗い帯）。光の色が見えるよう両テーマで暗くする */
-  --sim-spectrum-bg: #0b0d12;
-  --sim-spectrum-fg: #cbd5e1;
+  /* 光の干渉を映すスクリーン（暗室の幕。テーマによらず暗い） */
+  --sim-screen: #0b0d12;
+  --sim-screen-fg: #cbd5e1;
 
   --q-position: #2563eb;
   --q-velocity: #ea580c;
@@ -40,6 +40,7 @@
   --q-magnetic: #0d9488;
   --q-current: #ca8a04;
   --q-heat: #e11d48;
+  --q-momentum: #8b5e34;
   --q-electron: #4f46e5;
   --q-nucleus: #65a30d;
   --q-daughter: #c026d3;
@@ -72,8 +73,8 @@
   --sim-body: #cbd5e1;
   --sim-body-stroke: #f1f5f9;
   --sim-fixture: #8b95a7;
-  --sim-spectrum-bg: #05060a;
-  --sim-spectrum-fg: #cbd5e1;
+  --sim-screen: #05060a;
+  --sim-screen-fg: #cbd5e1;
 
   --q-position: #60a5fa;
   --q-velocity: #fb923c;
@@ -87,6 +88,7 @@
   --q-magnetic: #2dd4bf;
   --q-current: #facc15;
   --q-heat: #fb7185;
+  --q-momentum: #d4a373;
   --q-electron: #818cf8;
   --q-nucleus: #a3e635;
   --q-daughter: #e879f9;

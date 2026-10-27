@@ -82,6 +82,7 @@ export const QUANTITY_COLORS = [
   'magnetic',
   'current',
   'heat',
+  'momentum',
   'electron',
   'nucleus',
   'daughter',
@@ -101,9 +102,10 @@ export interface Palette {
   bodyStroke: string;
   /** 壁・床などの固定物 */
   fixture: string;
-  /** スペクトル線を描く暗い帯の背景と文字 */
-  spectrumBg: string;
-  spectrumFg: string;
+  /** 光を映すスクリーン（暗い幕） */
+  screen: string;
+  /** スクリーン上の文字・目盛り（暗い幕の上で読める色） */
+  screenFg: string;
   quantity: Record<Quantity, string>;
 }
 
@@ -127,8 +129,8 @@ export function getPalette(): Palette {
     body: cssVar(s, '--sim-body'),
     bodyStroke: cssVar(s, '--sim-body-stroke'),
     fixture: cssVar(s, '--sim-fixture'),
-    spectrumBg: cssVar(s, '--sim-spectrum-bg'),
-    spectrumFg: cssVar(s, '--sim-spectrum-fg'),
+    screen: cssVar(s, '--sim-screen'),
+    screenFg: cssVar(s, '--sim-screen-fg'),
     quantity,
   };
   return cachedPalette;

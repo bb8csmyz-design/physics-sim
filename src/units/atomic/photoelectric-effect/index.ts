@@ -144,7 +144,7 @@ const unit: UnitModule = {
       { key: 'N', label: '毎秒当たる光子の数', symbol: 'N', unit: '個/s' },
       { key: 'I0', label: '飽和電流', symbol: 'I_0', unit: 'μA', digits: 1, quantity: 'current' },
     ]);
-    const time = createTimeReadout(1, { unit: 'ns', scale: NANO });
+    const time = createTimeReadout(1, { unit: 'ns' });
 
     /** パラメータに合わせてグラフ（理論曲線）と定数表示を更新する */
     function applyParams() {

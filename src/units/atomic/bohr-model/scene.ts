@@ -291,7 +291,7 @@ function drawSpectrum(
   const bottom = r.y + r.h - 18;
 
   ctx.save();
-  ctx.fillStyle = pal.spectrumBg;
+  ctx.fillStyle = pal.screen;
   ctx.beginPath();
   ctx.roundRect(r.x, r.y, r.w, r.h, 8);
   ctx.fill();
@@ -311,7 +311,7 @@ function drawSpectrum(
   for (let u = 2; u <= N_MAX; u++) {
     for (let l = 1; l < u; l++) {
       const nm = lineWavelengthNm(p.Z, u, l);
-      ctx.strokeStyle = wavelengthCss(nm) ?? pal.spectrumFg;
+      ctx.strokeStyle = wavelengthCss(nm) ?? pal.screenFg;
       ctx.globalAlpha = 0.5;
       ctx.beginPath();
       ctx.moveTo(X(nm), top + (bottom - top) * 0.35);
@@ -325,15 +325,15 @@ function drawSpectrum(
   for (let d = Math.ceil(Math.log10(lamMin)); d <= Math.floor(Math.log10(lamMax)); d++) {
     const nm = 10 ** d;
     const x = X(nm);
-    ctx.strokeStyle = pal.spectrumFg;
+    ctx.strokeStyle = pal.screenFg;
     ctx.beginPath();
     ctx.moveTo(x, bottom);
     ctx.lineTo(x, bottom + 4);
     ctx.stroke();
     const label = nm >= 1000 ? `${nm / 1000} μm` : `${nm} nm`;
-    drawLabel(ctx, label, x, bottom + 11, pal.spectrumFg, { font: CANVAS_FONT_SMALL });
+    drawLabel(ctx, label, x, bottom + 11, pal.screenFg, { font: CANVAS_FONT_SMALL });
   }
-  drawLabel(ctx, 'スペクトル（波長は対数目盛り）', r.x + 8, r.y + 10, pal.spectrumFg, {
+  drawLabel(ctx, 'スペクトル（波長は対数目盛り）', r.x + 8, r.y + 10, pal.screenFg, {
     font: CANVAS_FONT_SMALL,
     align: 'left',
   });
@@ -342,7 +342,7 @@ function drawSpectrum(
   const tr = transition(p);
   if (tr.kind !== 'なし') {
     const x = X(tr.wavelengthNm);
-    ctx.strokeStyle = wavelengthCss(tr.wavelengthNm) ?? pal.spectrumFg;
+    ctx.strokeStyle = wavelengthCss(tr.wavelengthNm) ?? pal.screenFg;
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(x, top + 16);
@@ -350,7 +350,7 @@ function drawSpectrum(
     ctx.stroke();
     const text = `${formatSig(tr.wavelengthNm, 4)} nm`;
     const right = x > r.x + r.w - 40;
-    drawLabel(ctx, text, x, top + 7, pal.spectrumFg, {
+    drawLabel(ctx, text, x, top + 7, pal.screenFg, {
       font: CANVAS_FONT_SMALL,
       align: right ? 'right' : x < r.x + 40 ? 'left' : 'center',
     });
