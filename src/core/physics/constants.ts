@@ -8,6 +8,9 @@
 /** 重力加速度 [m/s²]（入試・教科書の慣例値） */
 export const G_ACCEL = 9.8;
 
+/** 空気中の音速 [m/s]（入試の慣例値。約 15 ℃ の空気） */
+export const SPEED_OF_SOUND = 340;
+
 /** 真空中の光速 [m/s]（定義値） */
 export const SPEED_OF_LIGHT = 299_792_458;
 /** 電気素量 [C]（定義値） */

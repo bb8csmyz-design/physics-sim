@@ -42,6 +42,7 @@ export class SimulationRunner<S> {
   private _time = 0;
   private _playing = false;
   private _speed = 1;
+  private _timeScale: number;
   private accumulator = 0;
   private rafId: number | null = null;
   private renderRequested = false;
@@ -50,6 +51,7 @@ export class SimulationRunner<S> {
 
   constructor(opts: RunnerOptions<S>) {
     this.opts = opts;
+    this._timeScale = opts.timeScale ?? 1;
     this._state = opts.init();
     this.opts.onReset?.(this._state);
     this.requestRender();
@@ -69,6 +71,9 @@ export class SimulationRunner<S> {
   }
   get dt(): number {
     return this.opts.dt;
+  }
+  get timeScale(): number {
+    return this._timeScale;
   }
 
   play(): void {
@@ -113,6 +118,15 @@ export class SimulationRunner<S> {
   setSpeed(speed: number): void {
     this._speed = speed;
     this.emit('speed');
+  }
+
+  /**
+   * 実時間 1 秒あたりに進むシミュレーション時間を変える。
+   * 振動数がパラメータで大きく変わる単元（音の固有振動など）で、見かけの速さをそろえるのに使う。
+   */
+  setTimeScale(timeScale: number): void {
+    if (!(timeScale > 0)) throw new RangeError('timeScale は正の数であること');
+    this._timeScale = timeScale;
   }
 
   /** 次のアニメーションフレームで 1 回描画する（停止中のパラメータ変更・リサイズ時など） */
@@ -164,7 +178,7 @@ export class SimulationRunner<S> {
     if (this._playing) {
       const real = Math.min((now - this.lastFrame) / 1000, MAX_FRAME_DELTA);
       this.lastFrame = now;
-      this.accumulator += real * (this.opts.timeScale ?? 1) * this._speed;
+      this.accumulator += real * this._timeScale * this._speed;
       let n = 0;
       while (this.accumulator >= this.opts.dt && n < MAX_STEPS_PER_FRAME) {
         this.accumulator -= this.opts.dt;

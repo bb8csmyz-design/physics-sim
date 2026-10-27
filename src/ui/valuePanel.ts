@@ -18,7 +18,8 @@ export interface ValueSpec<K extends string = string> {
 
 export interface ValuePanel<K extends string> {
   readonly element: HTMLElement;
-  update(values: Partial<Record<K, number>>): void;
+  /** 数値は書式を整えて表示する。文字列（「実像・倒立」など）はそのまま表示する */
+  update(values: Partial<Record<K, number | string>>): void;
 }
 
 export function createValuePanel<K extends string>(specs: readonly ValueSpec<K>[]): ValuePanel<K> {
@@ -48,7 +49,11 @@ export function createValuePanel<K extends string>(specs: readonly ValueSpec<K>[
         const v = values[s.key];
         if (v === undefined) continue;
         outputs.get(s.key)!.textContent =
-          s.digits === undefined ? formatSig(v, 3) : formatFixed(v, s.digits);
+          typeof v === 'string'
+            ? v
+            : s.digits === undefined
+              ? formatSig(v, 3)
+              : formatFixed(v, s.digits);
       }
     },
   };
