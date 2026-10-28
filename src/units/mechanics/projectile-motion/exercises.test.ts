@@ -60,12 +60,16 @@ describe('正解がシミュレーションと一致する', () => {
   });
 
   it('終端速度: 落下を続けると速さが終端速度に近づき、加速度が 0 になる', () => {
-    for (const ex of sampleExercises(template('terminal-speed'), 20)) {
+    for (const ex of sampleExercises(template('terminal-speed'))) {
       const p = ex.sim.params as ProjectileParams;
       // 地面のない条件（十分高いところから）で 20τ だけ落とす。残る差は e^{−20} ≈ 2e-9 倍
       const tau = p.m / p.k;
       const { s } = fly({ ...p, h0: 1e7 }, 20 * tau);
       expect(relativeError(value(ex), speed(s))).toBeLessThan(1e-6);
+      // 答え合わせの条件（高さ 30 m）でも、着地までに終端速度の 95% 以上に達する（v-t グラフで確かめられる）
+      const landing = fly(p);
+      expect(landing.s.landed).toBe(true);
+      expect(speed(landing.s)).toBeGreaterThan(0.95 * value(ex));
     }
   });
 

@@ -6,9 +6,15 @@ import { describe, expect, it } from 'vitest';
 import { relativeError } from '@/core/physics/analysis';
 import { checkExercises, numericAnswer, sampleExercises } from '@/units/exerciseChecks';
 import { EXERCISES } from './exercises';
-import { PARAMS, frequency, type ResonatorKind, type ResonatorParams } from './model';
+import {
+  PARAMS,
+  PRESET_CHOICES,
+  frequency,
+  type ResonatorKind,
+  type ResonatorParams,
+} from './model';
 
-checkExercises(EXERCISES, PARAMS);
+checkExercises(EXERCISES, PARAMS, PRESET_CHOICES);
 
 const template = (id: string) => EXERCISES.find((t) => t.id === id)!;
 const value = numericAnswer;

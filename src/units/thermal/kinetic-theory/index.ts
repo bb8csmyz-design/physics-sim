@@ -69,9 +69,9 @@ const unit: UnitModule = {
       {
         yLabel: 'p [Pa]',
         series: [
-          { label: '直近', quantity: 'pressure' },
-          { label: '平均', quantity: 'force' },
-          { label: 'NkT/V', quantity: 'energy', dashed: true },
+          { label: '直近', quantity: 'pressure', dotted: true },
+          { label: '平均', quantity: 'pressure' },
+          { label: 'NkT/V', tone: 'muted', dashed: true },
         ],
         ariaLabel: '壁が受けた力積から測った圧力の時間変化と、状態方程式による理論値',
         timeUnit: 'ms',
@@ -83,7 +83,7 @@ const unit: UnitModule = {
         yLabel: 'F [N]',
         series: [
           { label: '平均', quantity: 'force' },
-          { label: 'Nm⟨vₓ²⟩/L', quantity: 'energy', dashed: true },
+          { label: 'Nm⟨vₓ²⟩/L', tone: 'muted', dashed: true },
         ],
         ariaLabel: 'x = L の壁が受ける力の時間平均と理論値',
         timeUnit: 'ms',
@@ -102,7 +102,7 @@ const unit: UnitModule = {
         label: '測った圧力（t = 0 からの平均）',
         symbol: 'p',
         unit: 'Pa',
-        quantity: 'force',
+        quantity: 'pressure',
       },
       {
         key: 'pRecent',

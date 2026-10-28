@@ -9,6 +9,8 @@
  *  - 選択肢が重複せず、正解の番号が範囲内
  *  - 答え合わせのシミュレーションの条件が、単元のスライダーの範囲と刻みに乗っている
  *    （スライダーで丸められて、問題と違う条件で動くことがない）
+ *  - 択一の切り替え（sim.choices）が、単元の受け付けるキーと値だけを、すべてのキーについて指定している
+ *    （第 3 引数に単元の model.ts の PRESET_CHOICES を渡す。書き間違えると既定値のまま開いてしまうため）
  *  - 問題文・解説・選択肢の数式が KaTeX で読める
  *  - シードを変えると数値が変わる
  */
@@ -65,6 +67,7 @@ function texErrors(text: string): string[] {
 export function checkExercises(
   templates: readonly ExerciseTemplate[],
   specs: readonly ParamSpec[] | ((ex: Exercise) => readonly ParamSpec[]),
+  presetChoices: Readonly<Record<string, readonly string[]>> = {},
 ): void {
   describe('演習問題の共通の検査', () => {
     it('パターンが 3 つ以上あり、id と名前が重複しない', () => {
@@ -113,6 +116,17 @@ export function checkExercises(
                 Math.abs(k - Math.round(k)),
                 `${s.key} = ${v} が刻み ${s.step} に乗らない`,
               ).toBeLessThan(1e-6);
+            }
+          }
+        });
+
+        it('択一の切り替えの指定が単元の選択肢に含まれ、すべてのキーを指定している', () => {
+          const keys = Object.keys(presetChoices).sort();
+          for (const ex of exercises) {
+            const choices = ex.sim.choices ?? {};
+            expect(Object.keys(choices).sort(), ex.statement).toEqual(keys);
+            for (const [k, v] of Object.entries(choices)) {
+              expect(presetChoices[k], `choices.${k} = ${v}`).toContain(v);
             }
           }
         });

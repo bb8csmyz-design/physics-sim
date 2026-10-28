@@ -28,9 +28,10 @@ export const EXERCISES: readonly ExerciseTemplate[] = [
     id: 'midpoint-field',
     title: '中点の電場の強さ',
     generate(rng) {
-      const c = pickCharges(rng);
-      let p: FieldParams = { ...c, x0: -0.04, y0: 0.05 };
-      if (c.QA === c.QB) p = { ...p, QB: c.QB === 4 ? 3.5 : c.QB + 0.5 }; // 中点で 0 になる条件は避ける
+      let c: ReturnType<typeof pickCharges>;
+      do c = pickCharges(rng);
+      while (c.QA === c.QB); // 中点で 0 になる条件は避ける
+      const p: FieldParams = { ...c, x0: -0.04, y0: 0.05 };
       const E = midpointValues(p).E;
       const r = p.d / 2;
       return {
@@ -54,10 +55,10 @@ export const EXERCISES: readonly ExerciseTemplate[] = [
     id: 'midpoint-potential',
     title: '中点の電位',
     generate(rng) {
-      const c = pickCharges(rng);
-      let p: FieldParams = { ...c, x0: -0.04, y0: 0.05 };
-      if (c.QA === -c.QB) p = { ...p, QB: c.QB + (c.QB < 4 ? 0.5 : -1) }; // 電位 0 の条件は避ける
-      if (p.QB === 0) p = { ...p, QB: 1 };
+      let c: ReturnType<typeof pickCharges>;
+      do c = pickCharges(rng);
+      while (c.QA === -c.QB); // 電位 0 の条件は避ける
+      const p: FieldParams = { ...c, x0: -0.04, y0: 0.05 };
       const V = midpointValues(p).V;
       const r = p.d / 2;
       return {

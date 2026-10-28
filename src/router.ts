@@ -19,7 +19,14 @@ export type Route =
 export function parseHash(hash: string): Route {
   const raw = hash.replace(/^#/, '');
   const q = raw.indexOf('?');
-  const path = decodeURIComponent(q >= 0 ? raw.slice(0, q) : raw).replace(/\/+$/, '');
+  const rawPath = q >= 0 ? raw.slice(0, q) : raw;
+  let path: string;
+  try {
+    path = decodeURIComponent(rawPath).replace(/\/+$/, '');
+  } catch {
+    // '%' のあとが壊れた URL（手入力など）は、例外で画面が真っ白にならないよう「見つかりません」にする
+    return { name: 'notFound', path: rawPath };
+  }
   if (path === '' || path === '/') return { name: 'home' };
   if (path === '/practice') return { name: 'practice' };
   const pm = /^\/practice\/([a-z0-9-]+)\/([a-z0-9-]+)$/.exec(path);

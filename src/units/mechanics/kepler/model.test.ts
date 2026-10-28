@@ -21,6 +21,7 @@ import {
   initialState,
   keplerThirdRatio,
   launchRadius,
+  launchSpeed,
   orbit,
   orbitKind,
   speed,
@@ -238,6 +239,21 @@ describe('脱出と落下', () => {
         expect(distance(states[i]!)).toBeGreaterThan(distance(states[i - 1]!));
       }
     }
+  });
+
+  it('遠地点が打ち出した距離の 5 倍より遠い楕円軌道でも、脱出扱いで止めずに戻ってくる', () => {
+    // r₀ = 1.1R で脱出速度（約 10.7 km/s）よりわずかに遅い: 遠地点は約 20R
+    const p: KeplerParams = { r0: 1.1, v0: 10.5, m: 500 };
+    const o = orbit(p);
+    expect(orbitKind(p)).toBe('ellipse');
+    expect(o.apogee).toBeGreaterThan(escapeRadius(p));
+    const { states } = simulate(p, o.period);
+    expect(states.some((s) => s.escaped || s.crashed)).toBe(false);
+    const rMax = states.reduce((m, s) => Math.max(m, distance(s)), 0);
+    expect(relativeError(rMax, o.apogee)).toBeLessThan(1e-6);
+    // 1 周後には打ち出した点に戻る（周期が DT の整数倍でない分のずれ v₀Δt 程度まで）
+    const last = states.at(-1)!;
+    expect(Math.hypot(last.x - launchRadius(p), last.y)).toBeLessThan(launchSpeed(p) * DT);
   });
 
   it('近地点が地球の内側なら、地表（r = R）に達したところで止まる', () => {

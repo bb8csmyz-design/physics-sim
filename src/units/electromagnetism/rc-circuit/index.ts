@@ -96,7 +96,7 @@ const unit: UnitModule = {
         yLabel: '電圧 [V]',
         series: [
           { label: 'コンデンサー V_C', quantity: 'electric' },
-          { label: '抵抗 V_R', quantity: 'heat' },
+          { label: '抵抗 V_R', quantity: 'heat', dashed: true },
         ],
         ariaLabel: 'コンデンサーの電圧と抵抗の電圧の時間変化',
       },
@@ -108,7 +108,7 @@ const unit: UnitModule = {
         series: [
           { label: '静電エネルギー U', quantity: 'electric' },
           { label: 'ジュール熱 Q', quantity: 'heat' },
-          { label: '電池の仕事 W', quantity: 'energy', dashed: true },
+          { label: '電池の仕事 W', quantity: 'work', dashed: true },
         ],
         ariaLabel: '静電エネルギー・ジュール熱・電池がした仕事の時間変化',
       },
@@ -156,7 +156,7 @@ const unit: UnitModule = {
         symbol: 'W',
         unit: 'mJ',
         digits: 3,
-        quantity: 'energy',
+        quantity: 'work',
       },
     ]);
     const constants = createValuePanel([

@@ -27,7 +27,7 @@ export const PARAMS: readonly ParamSpec<RefractionParamKey>[] = [
     max: 2,
     step: 0.01,
     default: 1,
-    hint: '空気 1.00、水 1.33、ガラス 1.5 程度、ダイヤモンド 2.42',
+    hint: '空気 1.00、水 1.33、ガラス 1.5 程度、サファイア 1.77（ダイヤモンド 2.42 はこの範囲の外）',
   },
   { key: 'n2', label: '媒質 2 の屈折率', symbol: 'n_2', min: 1, max: 2, step: 0.01, default: 1.5 },
   {

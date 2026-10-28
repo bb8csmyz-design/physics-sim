@@ -52,6 +52,15 @@ practiceLink.prepend(icon('quiz'));
 const outlet = document.getElementById('app')!;
 let disposer = new Disposer();
 let generation = 0;
+/** パンくずの分野リンクから戻ったとき、トップページでスクロールする分野 */
+let scrollToField: string | null = null;
+
+// 「本文へ移動」: href="#app" のままだとハッシュのルーティングが「ページが見つかりません」にしてしまうので、
+// ハッシュを変えずに本文へフォーカスを移す
+document.querySelector<HTMLAnchorElement>('.skip-link')?.addEventListener('click', (ev) => {
+  ev.preventDefault();
+  (outlet.querySelector<HTMLElement>('h1') ?? outlet).focus();
+});
 
 onRouteChange((route) => {
   disposer.dispose();
@@ -67,10 +76,9 @@ onRouteChange((route) => {
 
   if (route.name === 'home') {
     renderHome(outlet);
-    const field = sessionStorage.getItem('scroll-to-field');
-    if (field) {
-      sessionStorage.removeItem('scroll-to-field');
-      document.getElementById(`field-${field}`)?.scrollIntoView({ block: 'start' });
+    if (scrollToField) {
+      document.getElementById(`field-${scrollToField}`)?.scrollIntoView({ block: 'start' });
+      scrollToField = null;
     }
   } else if (route.name === 'practice' || route.name === 'practiceUnit') {
     // 演習ページは KaTeX を使うので遅延読み込みにする（トップページを軽く保つ）
@@ -105,7 +113,7 @@ onRouteChange((route) => {
 // パンくずの分野リンク: トップに戻ったあと該当分野までスクロールする
 document.addEventListener('click', (ev) => {
   const a = (ev.target as HTMLElement).closest<HTMLAnchorElement>('a[data-scroll-field]');
-  if (a?.dataset.scrollField) sessionStorage.setItem('scroll-to-field', a.dataset.scrollField);
+  if (a?.dataset.scrollField) scrollToField = a.dataset.scrollField;
 });
 
 // --- PWA（Service Worker） ---

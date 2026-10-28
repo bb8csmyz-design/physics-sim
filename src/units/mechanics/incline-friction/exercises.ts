@@ -56,7 +56,7 @@ export const EXERCISES: readonly ExerciseTemplate[] = [
       return {
         statement: `${SETUP(p, false)}
 
-物体が斜面上で一瞬静止するまでに、斜面に沿って上った距離 $L$ [m] を有効数字 2 桁で求めよ。`,
+物体が最高点に達して止まるまでに、斜面に沿って上った距離 $L$ [m] を有効数字 2 桁で求めよ。`,
         answer: numeric(L, 'm'),
         solution: [
           UP_ACCEL(p),
@@ -124,7 +124,7 @@ export const EXERCISES: readonly ExerciseTemplate[] = [
       return {
         statement: `${SETUP(p, false)}
 
-打ち出してから物体が斜面上で一瞬静止するまでに、動摩擦力によって発生した熱 $Q$ [J] を有効数字 2 桁で求めよ。`,
+打ち出してから物体が最高点に達して止まるまでに、動摩擦力によって発生した熱 $Q$ [J] を有効数字 2 桁で求めよ。`,
         answer: numeric(Q, 'J'),
         solution: [
           UP_ACCEL(p),
@@ -135,7 +135,7 @@ export const EXERCISES: readonly ExerciseTemplate[] = [
         ],
         sim: {
           params: p,
-          hint: '再生して物体が止まったとき、エネルギーのグラフや「現在の値」の摩擦による発熱を見よう。$K$ の減少分 = $U$ の増加分 + 発熱 になっている。',
+          hint: '再生して物体が最高点で止まったところで一時停止し（滑り降りる条件では、その後も発熱が増える）、エネルギーのグラフや「現在の値」の摩擦による発熱を見よう。$K$ の減少分 = $U$ の増加分 + 発熱 になっている。',
         },
       };
     },
@@ -157,7 +157,7 @@ export const EXERCISES: readonly ExerciseTemplate[] = [
       return {
         statement: `${SETUP(p, true)}
 
-物体は斜面上で一瞬静止した。その後の物体の運動として正しいものを選べ。`,
+物体は斜面を上り、最高点で速度が 0 になった。その後の物体の運動として正しいものを選べ。`,
         answer: choice(rng, slides ? yes : no, slides ? no : yes, '斜面を再び上り始める'),
         solution: [
           '静止した物体には、重力の斜面成分 $mg\\sin\\theta$（斜面下向き）と静止摩擦力がはたらく。静止摩擦力の最大値は $\\mu mg\\cos\\theta$。',

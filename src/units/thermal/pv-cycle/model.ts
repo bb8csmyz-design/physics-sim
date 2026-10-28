@@ -383,6 +383,15 @@ export const CYCLE_OPTIONS: readonly { value: CycleId; label: string }[] = Objec
   CYCLES,
 ).map((c) => ({ value: c.id, label: c.name }));
 
+/**
+ * 答え合わせ・URL で指定できる択一の切り替え（ctx.preset.choices のキーと選べる値）。
+ * index.ts の presetChoice() と、演習問題のテスト（checkExercises）の両方がこれを使う。
+ */
+export const PRESET_CHOICES = {
+  cycle: CYCLE_OPTIONS.map((o) => o.value),
+  gas: GAS_OPTIONS.map((o) => o.value),
+} as const;
+
 export interface Cycle {
   gas: GasKind;
   n: number;

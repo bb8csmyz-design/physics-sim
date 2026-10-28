@@ -112,9 +112,14 @@ export class SimulationRunner<S> {
     this.requestRender();
   }
 
-  /** 停止中に、シミュレーション時間で duration だけ進める（コマ送り） */
+  /**
+   * 停止中に、シミュレーション時間で duration だけ進める（コマ送り）。
+   * 運動が終わっている（着地・終了時刻など）ときは、再生ボタンと同じく t = 0 からやり直して進める
+   * （終わった状態からさらに 1 ステップ進めて、着地点を通り過ぎたりしないように）
+   */
   advance(duration: number): void {
     this.pause();
+    if (this.finished()) this.reset();
     const n = Math.max(1, Math.round(duration / this.opts.dt));
     for (let i = 0; i < n; i++) if (!this.stepOnce()) break;
     this.requestRender();

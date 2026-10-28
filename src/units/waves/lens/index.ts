@@ -25,6 +25,7 @@ import {
   type LensKind,
   type LensParams,
   type LensState,
+  PRESET_CHOICES,
 } from './model';
 import { drawScene, type SceneOptions } from './scene';
 import { buildTheory } from './theory';
@@ -49,7 +50,7 @@ const unit: UnitModule = {
         { value: 'convex', label: '凸レンズ' },
         { value: 'concave', label: '凹レンズ' },
       ],
-      presetChoice(preset?.choices, 'kind', ['convex', 'concave'], 'convex'),
+      presetChoice(preset?.choices, 'kind', PRESET_CHOICES.kind, 'convex'),
       () => {
         applyParams();
         runner.reset();

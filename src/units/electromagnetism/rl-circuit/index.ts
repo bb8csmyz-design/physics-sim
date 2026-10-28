@@ -100,7 +100,7 @@ const unit: UnitModule = {
         series: [
           { label: 'コイル U', quantity: 'magnetic' },
           { label: 'ジュール熱 Q', quantity: 'heat' },
-          { label: '電池の仕事 W', quantity: 'energy', dashed: true },
+          { label: '電池の仕事 W', quantity: 'work', dashed: true },
         ],
         ariaLabel: 'コイルのエネルギー・ジュール熱・電池がした仕事の時間変化',
         timeUnit: 'ms',
@@ -147,7 +147,7 @@ const unit: UnitModule = {
         symbol: 'W',
         unit: 'mJ',
         digits: 3,
-        quantity: 'energy',
+        quantity: 'work',
       },
     ]);
     const constants = createValuePanel([

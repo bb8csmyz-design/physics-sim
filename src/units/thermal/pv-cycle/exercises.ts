@@ -11,6 +11,7 @@ import {
   sig,
   type ExerciseTemplate,
 } from '@/core/exercise';
+import { GAS_CONSTANT } from '@/core/physics/constants';
 import { CYCLES, buildCycle, processEnergy, summarize, type CycleId, type GasKind } from './model';
 
 const R_TEXT = '8.31';
@@ -109,7 +110,7 @@ B→C の変化で気体が吸収した熱量 $Q$ [J] を有効数字 2 桁で�
         sim: {
           params,
           choices: choices('carnot', gas),
-          hint: '「この条件での値」の熱効率を見よう。体積比や気体の種類を変えても効率が変わらないことを確かめよう。',
+          hint: '「1 サイクルの値」の熱効率を見よう。体積比や気体の種類を変えても効率が変わらないことを確かめよう。',
         },
       };
     },
@@ -128,7 +129,7 @@ B→C の変化で気体が吸収した熱量 $Q$ [J] を有効数字 2 桁で�
       );
       const proc = c.processes[index]!;
       const e = processEnergy(gas, c.n, proc);
-      const scale = c.n * 8.314 * proc.start.T;
+      const scale = c.n * GAS_CONSTANT * proc.start.T;
       const sign = (x: number) => (Math.abs(x) < 1e-9 * scale ? '= 0' : x > 0 ? '> 0' : '< 0');
       const fmt = (q: string, w: string, u: string) => `$Q ${q}$, $W ${w}$, $\\Delta U ${u}$`;
       const correct = fmt(sign(e.Q), sign(e.W), sign(e.dU));

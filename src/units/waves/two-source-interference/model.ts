@@ -18,6 +18,14 @@ import type { ParamSpec, ParamValues } from '@/core/params';
 export type InterferenceParamKey = 'd' | 'lambda' | 'xP' | 'yP';
 export type InterferenceParams = ParamValues<InterferenceParamKey>;
 export type SourcePhase = 'same' | 'opposite';
+/**
+ * 答え合わせ・URL で指定できる択一の切り替え（ctx.preset.choices のキーと選べる値）。
+ * index.ts の presetChoice() と、演習問題のテスト（checkExercises）の両方がこれを使う。
+ */
+export const PRESET_CHOICES = { phase: ['same', 'opposite'] } as const satisfies Record<
+  string,
+  readonly SourcePhase[]
+>;
 
 export const PARAMS: readonly ParamSpec<InterferenceParamKey>[] = [
   {

@@ -56,6 +56,7 @@ src/
     params.ts             createParamPanel() / createSlider() / createToggle() / createChoice()（スイッチの切り替えなど択一）
     playback.ts           createPlaybackControls() / createTimeReadout()（unit: 's' / 'ms' / 'T'、注記「1/n 倍のスロー再生」と setNote）
     timeGraph.ts          createTimeGraph() / createGraphTabs()（timeUnit: 'ms' で横軸をミリ秒表示）
+    graphLegend.ts        グラフの凡例の配置（狭い画面では折り返して縦軸ラベルと重ねない。timeGraph / xyGraph が使う）
     xyGraph.ts            createXYGraph()  横軸が時間でないグラフ（I-V 特性、E-n など）
     valuePanel.ts         createValuePanel() / createValueTable()（過程ごとの Q, W, ΔU などの表）
     math.ts               tex() / richText()
@@ -110,7 +111,7 @@ src/
 
 0. `mount(root, { disposer, preset })` — `preset` は演習問題の答え合わせ・URL から渡される初期条件
 1. `createParamPanel(PARAMS, ..., preset?.params)` — 初期条件・系の定数が変わったら `runner.reset()` して t = 0 からやり直す。
-   択一の切り替え（`createChoice`）の初期値は `presetChoice(preset?.choices, キー, 選択肢, 既定値)` で決める
+   択一の切り替え（`createChoice`）の初期値は `presetChoice(preset?.choices, キー, PRESET_CHOICES.キー, 既定値)` で決める
 2. `createResponsiveCanvas({ draw })` — draw は `runner.state` を読んで scene.ts の関数を呼ぶ
 3. `createTimeGraph` × n → `createGraphTabs`
 4. `createValuePanel`（現在値）＋必要なら「この条件での値」（周期など定数）
@@ -156,6 +157,8 @@ src/
   回路エディタの回路）。`hint` には、シミュレーションのどこを見れば答えを確かめられるかを書く。
 - 問題文に出てくるが `sim.params` にない値（「x = 0.1 m の位置での速さ」の x など）は `given` に入れ、テストで使う。
 - `exercises.test.ts` では、先頭で `checkExercises(EXERCISES, PARAMS)`（正解の表示と採点・刻み・KaTeX・シードによる変化を検査）を呼び、
+  択一の切り替えがある単元は model.ts に `PRESET_CHOICES`（キーと選べる値。index.ts の `presetChoice` もこれを使う）を置いて
+  第 3 引数に渡す（`sim.choices` の書き間違い・指定漏れを検出する）。
   さらに **各パターンの正解が、`sim` の条件で model.ts の `step()` を動かした結果（または独立な計算）と一致すること** を確かめる。
   許容誤差の根拠は物理テストと同じくコメントに書く。
 

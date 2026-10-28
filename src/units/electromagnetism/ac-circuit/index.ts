@@ -76,7 +76,7 @@ const unit: UnitModule = {
           { label: '電源 v', quantity: 'potential' },
           { label: 'v_R', quantity: 'heat' },
           { label: 'v_L', quantity: 'magnetic' },
-          { label: 'v_C', quantity: 'electric' },
+          { label: 'v_C', quantity: 'electric', dashed: true },
         ],
         symmetric: true,
         ariaLabel: '電源電圧と、抵抗・コイル・コンデンサーの電圧の時間変化',

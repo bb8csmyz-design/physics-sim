@@ -14,6 +14,7 @@ import type { Palette, Quantity } from '@/core/theme';
 import { niceStep, niceTicks, tickDigits } from '@/core/ticks';
 import { createResponsiveCanvas } from './canvas';
 import { CANVAS_FONT_SMALL } from './draw';
+import { LEGEND_TEXT_OFFSET, layoutLegend } from './graphLegend';
 
 export interface XYPoint {
   x: number;
@@ -67,7 +68,7 @@ export interface XYGraph {
   redraw(): void;
 }
 
-const MARGIN = { left: 52, right: 14, top: 30, bottom: 30 };
+const MARGIN = { left: 52, right: 14, bottom: 30 };
 
 export function createXYGraph(opts: XYGraphOptions, disposer: Disposer): XYGraph {
   let xRange = opts.xRange;
@@ -99,14 +100,19 @@ export function createXYGraph(opts: XYGraphOptions, disposer: Disposer): XYGraph
   ) {
     const x0 = MARGIN.left;
     const x1 = size.width - MARGIN.right;
-    const y0 = MARGIN.top;
+    ctx.font = CANVAS_FONT_SMALL;
+    // 凡例に出すのはラベルのある系列だけ（空文字の系列は幅 −1 で除く）
+    const legend = layoutLegend(
+      opts.series.map((s) => (s.label ? ctx.measureText(s.label).width : -1)),
+      { left: 6, right: x1, yLabelRight: 6 + ctx.measureText(opts.yLabel).width },
+    );
+    const y0 = legend.top;
     const y1 = size.height - MARGIN.bottom;
     const [xMin, xMax] = xRange;
     const [yMin, yMax] = yRange;
     const px = (x: number) => x0 + ((x - xMin) / (xMax - xMin)) * (x1 - x0);
     const py = (y: number) => y1 - ((y - yMin) / (yMax - yMin)) * (y1 - y0);
 
-    ctx.font = CANVAS_FONT_SMALL;
     ctx.lineWidth = 1;
 
     // 目盛りとグリッド（0 の線は軸の色）
@@ -143,7 +149,7 @@ export function createXYGraph(opts: XYGraphOptions, disposer: Disposer): XYGraph
     ctx.fillStyle = p.fg;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'bottom';
-    ctx.fillText(opts.yLabel, 6, y0 - 10);
+    ctx.fillText(opts.yLabel, 6, legend.yLabelBaseline);
     ctx.textAlign = 'right';
     ctx.fillText(opts.xLabel, x1, size.height - 2);
 
@@ -241,36 +247,29 @@ export function createXYGraph(opts: XYGraphOptions, disposer: Disposer): XYGraph
     }
     ctx.restore();
 
-    // 凡例（右上）
+    // 凡例（右上。入りきらなければ折り返す）
     ctx.textBaseline = 'middle';
     ctx.textAlign = 'left';
-    let lx = x1;
-    const ly = y0 - 14;
-    for (let i = opts.series.length - 1; i >= 0; i--) {
-      const s = opts.series[i]!;
-      if (!s.label) continue;
-      const w = ctx.measureText(s.label).width;
-      lx -= w;
+    for (const it of legend.items) {
+      const s = opts.series[it.index]!;
       ctx.fillStyle = p.fg;
-      ctx.fillText(s.label, lx, ly);
-      lx -= 22;
+      ctx.fillText(s.label, it.x + LEGEND_TEXT_OFFSET, it.y);
       const color = seriesColor(s, p);
       if (s.style === 'points') {
         ctx.fillStyle = color;
         ctx.beginPath();
-        ctx.arc(lx + 8, ly, 3.5, 0, Math.PI * 2);
+        ctx.arc(it.x + 8, it.y, 3.5, 0, Math.PI * 2);
         ctx.fill();
       } else {
         ctx.strokeStyle = color;
         ctx.lineWidth = 2.5;
         ctx.setLineDash(s.dashed ? [4, 3] : []);
         ctx.beginPath();
-        ctx.moveTo(lx, ly);
-        ctx.lineTo(lx + 16, ly);
+        ctx.moveTo(it.x, it.y);
+        ctx.lineTo(it.x + 16, it.y);
         ctx.stroke();
         ctx.setLineDash([]);
       }
-      lx -= 12;
     }
   }
 

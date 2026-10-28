@@ -11,6 +11,7 @@ import {
   PARAMS,
   initialState,
   period,
+  radius,
   step,
   type ParticleParams,
   type ParticleState,
@@ -32,6 +33,18 @@ function simulate(p: ParticleParams, duration: number): ParticleState[] {
 }
 
 // RK4（|ω|Δt ≤ 0.01）の 1 周あたりの誤差は 1e-9 程度。最大値は Δt ごとの標本なので (ωΔt)²/8 ほどずれる
+describe('答え合わせの条件', () => {
+  it('円運動の 1 周が 13 s 以内に終わり、円が画面（高さ 3r ≤ 30 m）に収まる', () => {
+    for (const id of ['radius', 'period', 'rotation-direction']) {
+      for (const ex of sampleExercises(template(id), 300)) {
+        const p = ex.sim.params as ParticleParams;
+        expect(period(p), ex.statement).toBeLessThanOrEqual(13);
+        expect(3 * radius(p), ex.statement).toBeLessThanOrEqual(30);
+      }
+    }
+  });
+});
+
 describe('正解が軌道の数値積分と一致する', () => {
   it('半径: 1 周の間の y の幅（直径）の半分', () => {
     for (const ex of sampleExercises(template('radius'), 20)) {

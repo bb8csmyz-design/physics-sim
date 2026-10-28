@@ -99,13 +99,13 @@ export const EXERCISES: readonly ExerciseTemplate[] = [
         answer: numeric(b, 'cm'),
         solution: [
           '凹レンズでは焦点距離を負として $f = -' + F + '$ cm をレンズの式に入れる。',
-          `$$\\frac{1}{${a}} + \\frac{1}{b} = -\\frac{1}{${F}} \\quad\\Longrightarrow\\quad b = -\\frac{af}{a + f}\\Big|_{f = ${F}} = -\\frac{${a} \\times ${F}}{${a} + ${F}} \\approx ${sig(b)}\\ \\text{cm}$$`,
+          `$$\\frac{1}{${a}} + \\frac{1}{b} = -\\frac{1}{${F}} \\quad\\Longrightarrow\\quad b = \\frac{af}{a - f} = \\frac{${a} \\times (-${F})}{${a} + ${F}} \\approx ${sig(b)}\\ \\text{cm}$$`,
           '凹レンズの像は、物体の位置によらずいつもレンズの前方（焦点の内側）にできる、正立で縮小された虚像。',
         ],
         sim: {
           params: p,
           choices: { kind: 'concave' },
-          hint: '「現在の値」の像の位置 $b$（m、負なら虚像）を見よう。レンズを出た光線を逆向きにのばした点線が交わるところが虚像。',
+          hint: '「現在の値」の像の位置 $b$（m、負なら虚像）を見よう。レンズを出た光線を逆向きにのばした破線が交わるところが虚像。',
         },
       };
     },
